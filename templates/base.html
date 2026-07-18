@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lyrix{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen text-gray-900">
+    {% include 'includes/_header.html' %}
+    
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    {% include 'includes/_footer.html' %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

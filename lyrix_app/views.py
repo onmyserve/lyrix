@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 def home_view(request):
     # Query all users from the database
     users = UserProfile.objects.all()
-    return render(request, 'home.html', {'users': users})
+    return render(request, 'lyrix_app/home.html', {'users': users})
 
 def add_user_view(request):
     if request.method == 'POST':
@@ -20,12 +20,12 @@ def add_user_view(request):
     else:
         form = UserProfileForm()
         
-    return render(request, 'add_user.html', {'form': form})
+    return render(request, 'lyrix_app/add_user.html', {'form': form})
 
 @login_required
 def customer_list_view(request): # Renamed
     customers = Customer.objects.all()
-    return render(request, 'customer_home.html', {'customers': customers})
+    return render(request, 'lyrix_app/customer_home.html', {'customers': customers})
 
 
 def add_customer_view(request): # Renamed
@@ -39,4 +39,4 @@ def add_customer_view(request): # Renamed
             return redirect('customer_list') # Redirect to new URL name
     else:
         form = CustomerForm()
-    return render(request, 'add_customer.html', {'form': form})
+    return render(request, 'lyrix_app/add_customer.html', {'form': form})

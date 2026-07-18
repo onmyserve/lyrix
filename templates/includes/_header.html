@@ -1,0 +1,21 @@
+<header class="bg-indigo-600 text-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex-shrink-0">
+                <a href="/" class="font-bold text-xl tracking-tight">Lyrix</a>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <a href="/" class="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                {% if user.is_authenticated %}
+                    <span class="text-indigo-200 text-sm">Welcome, {{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}" class="inline m-0 p-0">
+                        {% csrf_token %}
+                        <button type="submit" class="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Login</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
