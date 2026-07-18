@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import UserProfile
-from .forms import UserProfileForm
+from .models import UserProfile, Customer
+from .forms import UserProfileForm, CustomerForm
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 
+
+@login_required
 def home_view(request):
     # Query all users from the database
     users = UserProfile.objects.all()
@@ -17,3 +21,22 @@ def add_user_view(request):
         form = UserProfileForm()
         
     return render(request, 'add_user.html', {'form': form})
+
+@login_required
+def customer_list_view(request): # Renamed
+    customers = Customer.objects.all()
+    return render(request, 'customer_home.html', {'customers': customers})
+
+
+def add_customer_view(request): # Renamed
+    #if not request.user.is_staff:
+    #    raise PermissionDenied
+        
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('customer_list') # Redirect to new URL name
+    else:
+        form = CustomerForm()
+    return render(request, 'add_customer.html', {'form': form})

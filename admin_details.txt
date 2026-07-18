@@ -1,0 +1,7 @@
+admin
+username - lyrixsuper
+password - lyrixpass
+
+user
+username - ramprasad
+password - lyrixpass
