@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add User</title>
+</head>
+<body>
+    <h2>Add New User</h2>
+    
+    <form method="POST">
+        <!-- Django requires this token for security against CSRF attacks -->
+        {% csrf_token %} 
+        
+        <!-- Renders form fields as paragraphs automatically -->
+        {{ form.as_p }} 
+        
+        <button type="submit">Save User</button>
+    </form>
+</body>
+</html>
