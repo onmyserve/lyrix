@@ -6,8 +6,7 @@
 <!-- <div class="bg-white rounded-2xl shadow-xl p-8"></div> -->
 <!-- Login Card Container -->
 <div
-  class="w-full max-w-[440px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.07)] overflow-hidden border border-slate-100/80">
-
+  class="w-full bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.07)] overflow-hidden border border-slate-100/80">
   <!-- Top Blue Accent Line -->
   <div class="h-1.5 bg-brand-blue w-full"></div>
 
@@ -45,7 +44,7 @@
       {% csrf_token %}
 
       <!-- Database Dropdown Field -->
-      <div class="relative">
+      <div class="relative w-[440px]">
         <div
           class="border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue transition-all duration-200 shadow-sm hover:border-slate-300">
           <label for="database_select" class="block text-[11px] font-semibold text-slate-500 tracking-wide mb-0.5">
@@ -55,10 +54,10 @@
             <i data-lucide="database" class="w-5 h-5 text-slate-500 shrink-0"></i>
             <select id="database_select" name="database"
               class="w-full bg-transparent text-slate-800 text-sm font-semibold focus:outline-none cursor-pointer appearance-none pr-6">
-              <option value="main-prod-us-east" selected>Lyrix - Main Production (US-East)</option>
-              <option value="prod-us-west">Lyrix - Secondary (US-West)</option>
-              <option value="eu-central">Lyrix - EU Central (Frankfurt)</option>
-              <option value="ap-south">Lyrix - APAC (Singapore)</option>
+              <option value="main-prod-us-east" selected>Lyrix Dev</option>
+              <option value="prod-us-west">Lyrix Staging</option>
+              <option value="eu-central">Lyrix UAT</option>
+              <option value="ap-south">Lyrix Prod</option>
             </select>
             <i data-lucide="chevron-down"
               class="w-4 h-4 text-slate-400 shrink-0 absolute right-3.5 bottom-3 pointer-events-none"></i>
