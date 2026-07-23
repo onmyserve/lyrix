@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block body_content %}
+<!-- Menu Header Navigation -->
+{% include 'includes/navbar.html' %}
+
+<!-- Main App Container -->
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Reusable Messages Alert -->
+    {% include 'includes/messages.html' %}
+
+    <!-- Page Specific Content -->
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer Component -->
+{% include 'includes/footer.html' %}
+{% endblock %}

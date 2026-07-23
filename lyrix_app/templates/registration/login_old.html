@@ -1,0 +1,79 @@
+{% extends 'base_login.html' %}
+
+{% block title %}Sign In - Lyrix{% endblock %}
+
+{% block content %}
+<div
+  class="login-card w-full max-w-md mx-auto bg-surface-container-lowest rounded-xl border border-outline-variant p-2xl">
+  <!-- Logo Header -->
+  <div class="text-center mb-xl">
+    <h1
+      class="font-display-lg text-display-lg font-black bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent inline-block mb-sm">
+      Lyrix CRM
+    </h1>
+    <p class="font-body-lg text-body-lg text-on-surface-variant">Sign in to your account</p>
+  </div>
+  <!-- Login Form -->
+  <form class="space-y-lg" method="POST">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="rounded-md bg-red-50 p-4">
+      <div class="text-sm text-red-700">
+        {{ form.non_field_errors }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Email Field -->
+    <div class="space-y-xs">
+      <label class="block font-label-md text-label-md text-on-surface" for="{{ form.username.id_for_label }}">Email
+        Address</label>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">mail</span>
+        <input
+          class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200"
+          id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}" placeholder="you@company.com"
+          required="" type="text" />
+      </div>
+      {% if form.username.errors %}
+      <p class="mt-2 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Password Field -->
+    <div class="space-y-xs">
+      <div class="flex justify-between items-center">
+        <label class="block font-label-md text-label-md text-on-surface"
+          for="  {{ form.password.id_for_label }}">Password</label>
+        <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+          href="#">Forgot password?</a>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">lock</span>
+        <input
+          class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200"
+          id="{{ form.password.id_for_label }}" name="{{ form.password.html_name }}" placeholder="••••••••" required=""
+          type="password" />
+      </div>
+
+      {% if form.password.errors %}
+      <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+      {% endif %}
+    </div>
+
+
+    <!-- Submit Button -->
+    <button
+      class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg text-on-primary bg-primary-container hover:bg-primary transition-colors duration-200 font-label-md text-label-md shadow-sm"
+      type="submit">
+      Sign in to Lyrix
+      <span class="material-symbols-outlined ml-2 text-[18px]">arrow_forward</span>
+    </button>
+  </form>
+  <div class="mt-lg text-center">
+    <p class="font-body-md text-body-md text-on-surface-variant">
+      Don't have an account? <a class="text-primary font-semibold hover:underline" href="#">Manage Company</a>
+    </p>
+  </div>
+</div>
+{% endblock content %}

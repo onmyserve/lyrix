@@ -25,7 +25,7 @@ def add_user_view(request):
 @login_required
 def customer_list_view(request): # Renamed
     customers = Customer.objects.all()
-    return render(request, 'lyrix_app/customer_home.html', {'customers': customers})
+    return render(request, 'lyrix_app/contact/contact_list.html', {'customers': customers})
 
 
 def add_customer_view(request): # Renamed
@@ -39,4 +39,4 @@ def add_customer_view(request): # Renamed
             return redirect('customer_list') # Redirect to new URL name
     else:
         form = CustomerForm()
-    return render(request, 'lyrix_app/add_customer.html', {'form': form})
+    return render(request, 'lyrix_app/contact/contact_form.html', {'form': form})
