@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 
 {% block body_content %}
-<div class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#F3F6FA]">
-    <div class="w-full max-w-[600px]">
+<div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-surface-variant relative overflow-hidden">
+    <!-- Atmospheric Glow Background matching contact list -->
+    <div class="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-electric-violet/10 blur-[150px] rounded-full pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-soft-cyan/15 blur-[120px] rounded-full pointer-events-none"></div>
+
+    <div class="w-full max-w-[500px] relative z-10">
         {% block auth_content %}
         {% endblock %}
     </div>

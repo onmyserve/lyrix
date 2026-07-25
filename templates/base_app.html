@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 
 {% block body_content %}
-<!-- Menu Header Navigation -->
-{% include 'includes/navbar.html' %}
+<div class="flex h-screen w-full relative overflow-hidden">
+    <!-- Decoupled Modular Side Navbar -->
+    {% include 'includes/sidebar.html' %}
 
-<!-- Main App Container -->
-<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Reusable Messages Alert -->
-    {% include 'includes/messages.html' %}
+    <!-- Main App Container -->
+    <main class="flex-1 ml-[260px] h-screen overflow-hidden p-2 flex flex-col relative">
+        <!-- Atmospheric Glow Background -->
+        <div
+            class="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-electric-violet/5 blur-[150px] rounded-full pointer-events-none">
+        </div>
+        <div
+            class="fixed bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-soft-cyan/10 blur-[120px] rounded-full pointer-events-none">
+        </div>
 
-    <!-- Page Specific Content -->
-    {% block content %}{% endblock %}
-</main>
-
-<!-- Footer Component -->
-{% include 'includes/footer.html' %}
+        <!-- Page Specific Content -->
+        {% block content %}{% endblock %}
+    </main>
+</div>
 {% endblock %}

@@ -6,17 +6,21 @@
 <!-- <div class="bg-white rounded-2xl shadow-xl p-8"></div> -->
 <!-- Login Card Container -->
 <div
-  class="w-full bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.07)] overflow-hidden border border-slate-100/80">
-  <!-- Top Blue Accent Line -->
-  <div class="h-1.5 bg-brand-blue w-full"></div>
+  class="w-full glass-card rounded-[24px] overflow-hidden bg-white/90 backdrop-blur-xl border border-black/5 shadow-[0_10px_40px_rgba(0,0,0,0.06)] relative z-10">
+  <!-- Top Gradient Accent Line -->
+  <div class="h-1.5 primary-gradient w-full"></div>
 
   <div class="p-8 sm:p-10">
     <!-- Header Logo & Subtitle -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-none mb-2">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl primary-gradient mb-3 shadow-md">
+        <span class="material-symbols-outlined text-white text-2xl"
+          style="font-variation-settings: 'FILL' 1;">dataset</span>
+      </div>
+      <h1 class="font-display-lg text-3xl sm:text-[34px] font-bold text-on-surface tracking-tight leading-none mb-2">
         Lyrix
       </h1>
-      <p class="text-slate-500 font-medium text-sm sm:text-base">
+      <p class="font-body-md text-on-surface-variant text-sm font-medium">
         Enterprise CRM Platform
       </p>
     </div>
@@ -26,7 +30,7 @@
     <div class="mb-5 space-y-2">
       {% for message in messages %}
       <div
-        class="p-3 text-xs sm:text-sm rounded-xl font-medium {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+        class="p-3 text-xs sm:text-sm rounded-xl font-medium {% if message.tags == 'error' %}bg-red-50 text-red-600 border border-red-200{% else %}bg-electric-violet/10 text-electric-violet border border-electric-violet/20{% endif %}">
         {{ message }}
       </div>
       {% endfor %}
@@ -34,7 +38,7 @@
     {% endif %}
 
     {% if form.errors %}
-    <div class="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs sm:text-sm font-medium">
+    <div class="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs sm:text-sm font-medium">
       Please check your credentials and try again.
     </div>
     {% endif %}
@@ -44,23 +48,24 @@
       {% csrf_token %}
 
       <!-- Database Dropdown Field -->
-      <div class="relative w-[440px]">
+      <div>
         <div
-          class="border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue transition-all duration-200 shadow-sm hover:border-slate-300">
-          <label for="database_select" class="block text-[11px] font-semibold text-slate-500 tracking-wide mb-0.5">
+          class="border border-black/10 rounded-xl px-3.5 py-2 bg-white focus-within:border-electric-violet focus-within:ring-1 focus-within:ring-electric-violet/30 transition-all duration-200 shadow-sm hover:border-black/20">
+          <label for="database_select"
+            class="block text-[11px] font-semibold text-on-surface-variant tracking-wide mb-0.5">
             Database
           </label>
           <div class="flex items-center gap-3">
-            <i data-lucide="database" class="w-5 h-5 text-slate-500 shrink-0"></i>
+            <i data-lucide="database" class="w-5 h-5 text-on-surface-variant shrink-0"></i>
             <select id="database_select" name="database"
-              class="w-full bg-transparent text-slate-800 text-sm font-semibold focus:outline-none cursor-pointer appearance-none pr-6">
+              class="w-full bg-transparent text-on-surface text-sm font-semibold focus:outline-none cursor-pointer appearance-none pr-6">
               <option value="main-prod-us-east" selected>Lyrix Dev</option>
               <option value="prod-us-west">Lyrix Staging</option>
               <option value="eu-central">Lyrix UAT</option>
               <option value="ap-south">Lyrix Prod</option>
             </select>
             <i data-lucide="chevron-down"
-              class="w-4 h-4 text-slate-400 shrink-0 absolute right-3.5 bottom-3 pointer-events-none"></i>
+              class="w-4 h-4 text-on-surface-variant shrink-0 absolute right-3.5 bottom-3 pointer-events-none"></i>
           </div>
         </div>
       </div>
@@ -68,24 +73,24 @@
       <!-- Username / Email Field -->
       <div>
         <div
-          class="border border-slate-200 rounded-xl px-3.5 py-3 bg-white focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue transition-all duration-200 flex items-center gap-3 shadow-sm hover:border-slate-300">
-          <i data-lucide="mail" class="w-5 h-5 text-slate-400 shrink-0"></i>
+          class="border border-black/10 rounded-xl px-3.5 py-3 bg-white focus-within:border-electric-violet focus-within:ring-1 focus-within:ring-electric-violet/30 transition-all duration-200 flex items-center gap-3 shadow-sm hover:border-black/20">
+          <i data-lucide="mail" class="w-5 h-5 text-on-surface-variant shrink-0"></i>
           <input type="email" required placeholder="user@company.com" value="{{ form.username.value|default:'' }}"
             id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}"
-            class="w-full bg-transparent text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none">
+            class="w-full bg-transparent text-sm font-medium text-on-surface placeholder:text-outline focus:outline-none">
         </div>
       </div>
 
       <!-- Password Field -->
       <div>
         <div
-          class="border border-slate-200 rounded-xl px-3.5 py-3 bg-white focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue transition-all duration-200 flex items-center gap-3 shadow-sm hover:border-slate-300">
-          <i data-lucide="lock" class="w-5 h-5 text-slate-400 shrink-0"></i>
+          class="border border-black/10 rounded-xl px-3.5 py-3 bg-white focus-within:border-electric-violet focus-within:ring-1 focus-within:ring-electric-violet/30 transition-all duration-200 flex items-center gap-3 shadow-sm hover:border-black/20">
+          <i data-lucide="lock" class="w-5 h-5 text-on-surface-variant shrink-0"></i>
           <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.html_name }}" required
             placeholder="Enter your password"
-            class="w-full bg-transparent text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none">
+            class="w-full bg-transparent text-sm font-medium text-on-surface placeholder:text-outline focus:outline-none">
           <button type="button" id="togglePassword" aria-label="Toggle password visibility"
-            class="text-slate-400 hover:text-slate-600 focus:outline-none shrink-0 transition-colors">
+            class="text-on-surface-variant hover:text-on-surface focus:outline-none shrink-0 transition-colors">
             <i data-lucide="eye-off" id="eyeIcon" class="w-5 h-5"></i>
           </button>
         </div>
@@ -95,35 +100,35 @@
       <div class="flex items-center justify-between pt-1 pb-1">
         <label class="flex items-center gap-2.5 cursor-pointer select-none">
           <input type="checkbox" name="remember_me"
-            class="w-4 h-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue cursor-pointer accent-brand-blue">
-          <span class="text-sm font-medium text-slate-700">Remember me</span>
+            class="w-4 h-4 rounded border-black/20 text-electric-violet focus:ring-electric-violet/50 cursor-pointer accent-electric-violet">
+          <span class="text-sm font-medium text-on-surface-variant">Remember me</span>
         </label>
         <a href="{% url 'password_reset' %}"
-          class="text-sm font-semibold text-brand-blue hover:text-brand-blue-hover hover:underline transition-colors">
+          class="text-sm font-bold text-electric-violet hover:underline transition-colors">
           Forgot password?
         </a>
       </div>
 
       <!-- Primary Sign In Button -->
       <button type="submit"
-        class="w-full bg-brand-blue hover:bg-brand-blue-hover active:bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-sm transition-all duration-200 text-sm tracking-wide mt-2">
+        class="w-full primary-gradient text-white font-semibold py-3 rounded-xl transition-all duration-200 text-sm tracking-wide mt-2 shadow-md">
         Sign in to Lyrix
       </button>
 
       <!-- Secondary Manage Enterprise Database Button -->
       <a href="manage-database"
-        class="w-full bg-white border border-brand-blue text-brand-blue hover:bg-blue-50/60 active:bg-blue-100 font-semibold py-3 rounded-xl transition-all duration-200 text-sm flex items-center justify-center gap-2">
-        <i data-lucide="settings" class="w-4 h-4 text-brand-blue"></i>
+        class="w-full bg-white border border-black/10 text-on-surface hover:bg-surface-variant font-semibold py-3 rounded-xl transition-all duration-200 text-sm flex items-center justify-center gap-2 shadow-sm">
+        <i data-lucide="settings" class="w-4 h-4 text-on-surface-variant"></i>
         <span>Manage Enterprise Database</span>
       </a>
     </form>
 
     <!-- Copyright Footer -->
-    <div class="text-center mt-8">
-      <p class="text-xs font-normal text-slate-400">
+    <!-- <div class="text-center mt-8">
+      <p class="text-xs font-normal text-on-surface-variant">
         &copy; 2025 Lyrix. All rights reserved.
       </p>
-    </div>
+    </div> -->
   </div>
 </div>
 

@@ -1,0 +1,81 @@
+<!-- SIDE NAVBAR -->
+<aside
+    class="w-[260px] h-screen fixed left-0 top-0 border-r border-glass-border flex flex-col p-unit-md bg-glass-fill backdrop-blur-[25px] shadow-[0_4px_20px_rgba(0,0,0,0.05)] z-50">
+    <div class="flex items-center gap-unit-md mb-unit-xl">
+        <div class="w-10 h-10 rounded-lg primary-gradient flex items-center justify-center shadow-md">
+            <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">dataset</span>
+        </div>
+        <div class="flex flex-col">
+            <span class="font-display-lg text-headline-md tracking-tight text-on-surface leading-none">LYRIX
+                CRM</span>
+            <span
+                class="font-caption text-on-surface-variant text-[10px] tracking-widest uppercase font-semibold">Enterprise
+                Tier</span>
+        </div>
+    </div>
+    <nav class="flex-1 space-y-1 overflow-y-auto">
+        {% if 'dashboard' in INSTALLED_APPS or 'lyrix_app' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-body-md font-medium">Dashboard</span>
+        </a>
+        {% endif %}
+
+        {% if 'contacts' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md {% if request.resolver_match.app_name == 'contacts' or active_menu == 'contacts' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="{% url 'contacts:contact_list' %}">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">contacts</span>
+            <span class="font-body-md">Contacts</span>
+        </a>
+        {% endif %}
+
+        {% if 'form_builder' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">dynamic_form</span>
+            <span class="font-body-md font-medium">Form Builder</span>
+        </a>
+        {% endif %}
+
+        {% if 'analytics' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">monitoring</span>
+            <span class="font-body-md font-medium">Analytics</span>
+        </a>
+        {% endif %}
+
+        {% if 'pipeline' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">query_stats</span>
+            <span class="font-body-md font-medium">Sales Pipeline</span>
+        </a>
+        {% endif %}
+
+        {% if 'settings' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="#">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-body-md font-medium">Settings</span>
+        </a>
+        {% endif %}
+    </nav>
+    <div class="mt-auto pt-unit-md border-t border-black/5">
+        <!-- <button
+            class="w-full mb-unit-lg py-unit-sm px-unit-md rounded-full border border-electric-violet/30 text-primary font-medium text-label-md hover:bg-electric-violet/5 transition-all">
+            Upgrade Plan
+        </button> -->
+        <div
+            class="flex items-center gap-unit-md p-unit-md rounded-lg hover:bg-surface-variant transition-colors cursor-pointer">
+            <div
+                class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center font-bold text-[#cc5500] border border-tertiary/30">
+                AV</div>
+            <div class="flex flex-col">
+                <span class="font-body-md text-on-surface font-medium text-sm">Alex Vance</span>
+                <span class="font-caption text-on-surface-variant text-[11px]">System Admin</span>
+            </div>
+        </div>
+    </div>
+</aside>

@@ -1,0 +1,32 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Add Contact - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-6 glass-card rounded-[20px] bg-white border border-black/5 shadow-sm mt-10">
+    <h2 class="font-display-lg text-2xl font-bold text-on-surface mb-6">Add New Contact</h2>
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-on-surface-variant mb-1">First Name</label>
+            <input type="text" name="first_name" required class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface focus:outline-none focus:border-electric-violet">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-on-surface-variant mb-1">Last Name</label>
+            <input type="text" name="last_name" required class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface focus:outline-none focus:border-electric-violet">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-on-surface-variant mb-1">Email</label>
+            <input type="email" name="email" required class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface focus:outline-none focus:border-electric-violet">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-on-surface-variant mb-1">Tag</label>
+            <input type="text" name="tag" value="Customer" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface focus:outline-none focus:border-electric-violet">
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+            <a href="{% url 'contacts:contact_list' %}" class="px-4 py-2.5 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-sm">Cancel</a>
+            <button type="submit" class="primary-gradient text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-md">Save Contact</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

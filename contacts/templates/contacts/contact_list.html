@@ -1,0 +1,176 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Contacts - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<header class="flex justify-between items-end mb-4 flex-shrink-0 relative z-10">
+    <div class="flex flex-col gap-unit-xs">
+        <h1 class="font-display-lg text-display-lg text-on-surface">Contacts</h1>
+        <p class="font-body-md text-on-surface-variant">{{ contacts|length }} total contacts</p>
+    </div>
+    <div class="flex items-center gap-unit-md">
+        <button
+            class="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 bg-white transition-all text-on-surface-variant shadow-sm">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button
+            class="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 bg-white transition-all text-on-surface-variant shadow-sm">
+            <span class="material-symbols-outlined">help_outline</span>
+        </button>
+        <a href="{% url 'contacts:add_contact' %}"
+            class="primary-gradient text-white px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-md">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Add Contact
+        </a>
+    </div>
+</header>
+
+<!-- CONTROL BAR -->
+<section class="flex flex-wrap items-center gap-unit-md mb-4 flex-shrink-0 relative z-10">
+    <!-- Search -->
+    <div class="flex-1 min-w-[300px] relative">
+        <span
+            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input
+            class="w-full bg-white border border-black/5 focus:border-electric-violet focus:ring-1 focus:ring-electric-violet/30 rounded-xl py-3 pl-12 pr-4 text-on-surface placeholder:text-outline shadow-sm transition-all"
+            placeholder="Search name, email, company..." type="text" />
+    </div>
+    <!-- View Switcher -->
+    <div class="flex p-1 bg-white border border-black/5 rounded-xl shadow-sm">
+        <button
+            class="px-4 py-1.5 rounded-lg bg-surface-variant text-primary flex items-center gap-2 font-medium">
+            <span class="material-symbols-outlined text-[20px]">list</span>
+        </button>
+        <button
+            class="px-4 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">grid_view</span>
+        </button>
+    </div>
+    <!-- Ghost Buttons -->
+    <button
+        class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+        <span class="font-label-md">Add Filter</span>
+    </button>
+    <div
+        class="flex items-center gap-3 px-unit-md py-3 rounded-xl border border-black/5 bg-white text-on-surface shadow-sm font-medium">
+        <span class="font-label-md">Watch Field</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input class="sr-only peer" type="checkbox" value="" />
+            <div
+                class="w-9 h-5 bg-surface-variant border border-black/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-electric-violet peer-checked:border-electric-violet">
+            </div>
+        </label>
+    </div>
+    <button
+        class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">view_column</span>
+        <span class="font-label-md">Columns</span>
+    </button>
+</section>
+
+<!-- CONTACTS TABLE CONTAINER -->
+<section
+    class="glass-card rounded-[20px] overflow-hidden bg-white relative z-10 shadow-sm border border-black/5 flex-1 min-h-0 flex flex-col mb-4">
+    <div class="overflow-y-auto overflow-x-auto flex-1 min-h-0">
+        <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-20">
+                <tr
+                    class="bg-surface-container text-on-surface-variant text-[12px] uppercase tracking-wider font-label-md font-semibold border-b border-black/5">
+                    <th class="py-5 px-6 w-12"><input
+                            class="rounded border-black/20 bg-white text-electric-violet focus:ring-electric-violet/50"
+                            type="checkbox" /></th>
+                    <th class="py-5 px-4 font-label-md">Name</th>
+                    <th class="py-5 px-4 font-label-md">Email</th>
+                    <th class="py-5 px-4 font-label-md">Tags</th>
+                    <th class="py-5 px-4 font-label-md">Phone</th>
+                    <th class="py-5 px-4 font-label-md">Status</th>
+                    <th class="py-5 px-4 font-label-md">Date Added</th>
+                    <th class="py-5 px-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5 bg-white">
+                {% for contact in contacts %}
+                <tr class="hover:bg-surface-variant/50 transition-colors group">
+                    <td class="py-1 px-6"><input
+                            class="rounded border-black/20 bg-white text-electric-violet focus:ring-electric-violet/50"
+                            type="checkbox" /></td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="font-body-md font-medium text-on-surface group-hover:text-primary transition-colors">
+                                {{ contact.first_name }} {{ contact.last_name }}</span>
+                        </div>
+                    </td>
+                    <td class="text-on-surface-variant text-sm">{{ contact.email }}</td>
+                    <td>
+                        <span
+                            class="px-3 py-1 rounded-full text-[11px] font-bold bg-soft-cyan/10 text-[#00a8cc] border border-soft-cyan/20">
+                            {{ contact.tag|default:"Customer" }}</span>
+                    </td>
+                    <td class="text-on-surface-variant text-sm">+1 (555) 012-9923</td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#00a8cc] shadow-[0_0_8px_rgba(0,210,253,0.3)]">
+                            </div>
+                            <span class="text-sm font-medium text-on-surface">Available</span>
+                        </div>
+                    </td>
+                    <td class="text-on-surface-variant text-sm">{{ contact.created_at|date:"M d, Y" }}</td>
+                    <td class="text-center">
+                        <button
+                            class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-black/5">
+                            <span class="material-symbols-outlined">more_horiz</span>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="py-8 text-center text-on-surface-variant">No contacts found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- FOOTER / PAGINATION -->
+<footer class="flex flex-col md:flex-row justify-between items-center gap-unit-md relative z-10 flex-shrink-0">
+    <div class="flex items-center gap-unit-md text-on-surface-variant text-sm font-medium">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-black/10 bg-white shadow-sm">
+            <span>Show:</span>
+            <select
+                class="bg-transparent border-none focus:ring-0 text-on-surface p-0 pr-6 text-sm font-medium">
+                <option>100 per page</option>
+                <option>50 per page</option>
+                <option>25 per page</option>
+            </select>
+        </div>
+        <span>Showing 1-{{ contacts|length }} of {{ contacts|length }} contacts</span>
+    </div>
+    <div class="flex items-center gap-1.5 font-medium">
+        <button class="p-2 rounded-lg hover:bg-black/5 text-on-surface-variant disabled:opacity-30" disabled="">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button
+            class="w-9 h-9 rounded-lg flex items-center justify-center bg-electric-violet text-white shadow-md font-bold">1</button>
+        <button class="p-2 rounded-lg hover:bg-black/5 text-on-surface-variant hover:text-on-surface">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    </div>
+</footer>
+
+<script>
+    // Micro-interactions for table rows
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.transform = 'translateX(1px)';
+            row.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+        });
+        row.addEventListener('mouseleave', () => {
+            row.style.transform = 'translateX(0)';
+        });
+    });
+</script>
+{% endblock %}
