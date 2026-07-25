@@ -70,10 +70,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lyrix.wsgi.application'
-CSRF_TRUSTED_ORIGINS = [                                                                                                                        
-          'https://onmyserve.pythonanywhere.com',                                                                                                 
- ] 
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://onmyserve.pythonanywhere.com',
+]
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
