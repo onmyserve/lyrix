@@ -62,20 +62,71 @@
         </a>
         {% endif %}
     </nav>
-    <div class="mt-auto pt-unit-md border-t border-black/5">
-        <!-- <button
-            class="w-full mb-unit-lg py-unit-sm px-unit-md rounded-full border border-electric-violet/30 text-primary font-medium text-label-md hover:bg-electric-violet/5 transition-all">
-            Upgrade Plan
-        </button> -->
-        <div
-            class="flex items-center gap-unit-md p-unit-md rounded-lg hover:bg-surface-variant transition-colors cursor-pointer">
-            <div
-                class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center font-bold text-[#cc5500] border border-tertiary/30">
-                AV</div>
-            <div class="flex flex-col">
-                <span class="font-body-md text-on-surface font-medium text-sm">Alex Vance</span>
-                <span class="font-caption text-on-surface-variant text-[11px]">System Admin</span>
+    <div class="mt-auto pt-unit-md border-t border-black/5 relative" id="user-profile-container">
+        <!-- User Profile Dropdown Menu -->
+        <div id="user-profile-dropdown"
+            class="hidden absolute bottom-full left-0 mb-2 w-full bg-surface border border-outline-variant/50 rounded-xl shadow-lg py-2 z-50 overflow-hidden backdrop-blur-md">
+            <div class="px-4 py-2 border-b border-outline-variant/30">
+                <p class="text-[10px] uppercase font-semibold tracking-wider text-on-surface-variant">Signed in as</p>
+                <p class="font-body-md text-sm font-medium text-on-surface truncate">
+                    {% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Alex Vance{% endif %}
+                </p>
             </div>
+            <form method="post" action="{% url 'logout' %}" class="w-full m-0 p-0">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full flex items-center gap-unit-md px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 font-medium transition-colors cursor-pointer text-left">
+                    <span class="material-symbols-outlined text-lg">logout</span>
+                    <span class="font-body-md text-sm">Logout</span>
+                </button>
+            </form>
         </div>
+
+        <!-- User Profile Toggle Button -->
+        <button id="user-profile-button" type="button"
+            class="w-full flex items-center gap-unit-md p-unit-md rounded-lg hover:bg-surface-variant transition-colors cursor-pointer text-left focus:outline-none">
+            <div
+                class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center font-bold text-[#cc5500] border border-tertiary/30 shrink-0">
+                {% if user.is_authenticated %}{{ user.username|slice:":2"|upper }}{% else %}AV{% endif %}
+            </div>
+            <div class="flex flex-col flex-1 min-w-0">
+                <span class="font-body-md text-on-surface font-medium text-sm truncate">
+                    {% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Alex Vance{% endif %}
+                </span>
+                <span class="font-caption text-on-surface-variant text-[11px] truncate">
+                    {% if user.is_authenticated %}{{ user.email|default:"System Admin" }}{% else %}System Admin{% endif %}
+                </span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-base transition-transform duration-200" id="user-profile-chevron">
+                unfold_more
+            </span>
+        </button>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const profileBtn = document.getElementById('user-profile-button');
+            const profileDropdown = document.getElementById('user-profile-dropdown');
+            const profileChevron = document.getElementById('user-profile-chevron');
+
+            if (profileBtn && profileDropdown) {
+                profileBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle('hidden');
+                    if (profileChevron) {
+                        profileChevron.classList.toggle('rotate-180');
+                    }
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!profileDropdown.classList.contains('hidden') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.classList.add('hidden');
+                        if (profileChevron) {
+                            profileChevron.classList.remove('rotate-180');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </aside>
