@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'contacts',
     'lyrix_app',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'lyrix.context_processors.installed_apps',
             ],
         },
     },
@@ -120,3 +122,6 @@ STATIC_URL = 'static/'
 LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = '/'
+
+LOGOUT_REDIRECT_URL = 'login'
+

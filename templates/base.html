@@ -7,32 +7,255 @@
     <title>{% block title %}Lyrix Enterprise CRM{% endblock %}</title>
 
     <!-- Google Fonts: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" -->
+    <!-- rel="stylesheet"> -->
 
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-border-gradient {
+            border: 1px solid transparent;
+            background-image: linear-gradient(rgba(250, 250, 250, 0.8), rgba(250, 250, 250, 0.8)),
+                linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.02) 100%);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .primary-gradient {
+            background: linear-gradient(135deg, #6c47ff 0%, #00d2fd 100%);
+            box-shadow: 0 4px 15px rgba(108, 71, 255, 0.4);
+        }
+
+        .primary-gradient:hover {
+            box-shadow: 0 6px 20px rgba(108, 71, 255, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+    </style>
 
     <!-- Tailwind Custom Configuration -->
     <script>
+        // tailwind.config = {
+        //     theme: {
+        //         extend: {
+        //             fontFamily: {
+        //                 sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        //             },
+        //             colors: {
+        //                 brand: {
+        //                     blue: '#1D61E7',
+        //                     'blue-hover': '#1853C7',
+        //                     dark: '#0F172A',
+        //                     bg: '#F3F6FA'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
         tailwind.config = {
+            darkMode: "class",
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    "colors": {
+                        'blue': '#1D61E7',
+                        'blue-hover': '#1853C7',
+                        'dark': '#0F172A',
+                        'bg': '#F3F6FA',
+                        "tertiary-fixed-dim": "#ffb691",
+                        "tertiary-fixed": "#ffdbcb",
+                        "glass-fill": "rgba(255, 255, 255, 0.70)",
+                        "error-container": "#93000a",
+                        "on-background": "#101415",
+                        "inverse-surface": "#e0e3e4",
+                        "on-secondary-fixed": "#001f27",
+                        "on-primary-fixed": "#1b0063",
+                        "on-error-container": "#ffdad6",
+                        "glass-border": "rgba(0, 0, 0, 0.05)",
+                        "surface-container": "#f5f5f5",
+                        "inverse-on-surface": "#2d3132",
+                        "secondary-container": "#00cffa",
+                        "outline-variant": "#cbd5e1",
+                        "on-tertiary-fixed-variant": "#783100",
+                        "on-primary-fixed-variant": "#4500d8",
+                        "surface-container-low": "#fafafa",
+                        "surface-dim": "#f5f5f5",
+                        "on-surface-variant": "#64748b",
+                        "deep-navy": "#101415",
+                        "secondary-fixed": "#b4ebff",
+                        "electric-violet": "#6c47ff",
+                        "tertiary-container": "#b34d00",
+                        "primary-fixed": "#e6deff",
+                        "on-tertiary": "#552100",
+                        "surface-container-highest": "#e5e5e5",
+                        "secondary-fixed-dim": "#3ed7ff",
+                        "surface-tint": "#c9beff",
+                        "on-surface": "#0f172a",
+                        "error": "#ffb4ab",
+                        "outline": "#94a3b8",
+                        "on-tertiary-container": "#ffeae1",
+                        "primary": "#6c47ff",
+                        "on-primary": "#2f009b",
+                        "surface": "#ffffff",
+                        "inverse-primary": "#5e35f1",
+                        "on-secondary": "#003542",
+                        "tertiary": "#ffb691",
+                        "primary-fixed-dim": "#c9beff",
+                        "primary-container": "#6c47ff",
+                        "surface-variant": "#f1f5f9",
+                        "on-tertiary-fixed": "#341100",
+                        "background": "#fafafa",
+                        "soft-cyan": "#00d2fd",
+                        "surface-container-high": "#ebebeb",
+                        "on-secondary-container": "#005467",
+                        "on-secondary-fixed-variant": "#004e5f",
+                        "on-primary-container": "#f1ebff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#ffffff",
+                        "on-error": "#690005",
+                        "secondary": "#99e5ff"
                     },
-                    colors: {
-                        brand: {
-                            blue: '#1D61E7',
-                            'blue-hover': '#1853C7',
-                            dark: '#0F172A',
-                            bg: '#F3F6FA'
-                        }
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit-md": "16px",
+                        "unit-lg": "24px",
+                        "margin-desktop": "40px",
+                        "container-max": "1440px",
+                        "unit-xs": "4px",
+                        "unit-xl": "48px",
+                        "gutter-desktop": "24px",
+                        "unit-sm": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        "headline-md": [
+                            "Outfit"
+                        ],
+                        "display-lg": [
+                            "Outfit"
+                        ],
+                        "caption": [
+                            "Inter"
+                        ],
+                        "label-md": [
+                            "Inter"
+                        ],
+                        "headline-lg": [
+                            "Outfit"
+                        ],
+                        "headline-lg-mobile": [
+                            "Outfit"
+                        ],
+                        "body-md": [
+                            "Inter"
+                        ],
+                        "body-lg": [
+                            "Inter"
+                        ]
+                    },
+                    "fontSize": {
+                        "headline-md": [
+                            "24px",
+                            {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "display-lg": [
+                            "48px",
+                            {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "caption": [
+                            "12px",
+                            {
+                                "lineHeight": "16px",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "label-md": [
+                            "14px",
+                            {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "headline-lg": [
+                            "32px",
+                            {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "headline-lg-mobile": [
+                            "24px",
+                            {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "body-md": [
+                            "16px",
+                            {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "body-lg": [
+                            "18px",
+                            {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                            }
+                        ]
                     }
-                }
-            }
+                },
+            },
         }
     </script>
 
@@ -40,7 +263,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-brand-bg font-sans min-h-screen flex items-center justify-center p-4 sm:p-6 antialiased">
+<body class="bg-brand-bg font-sans min-h-screen flex items-center justify-center p-4 sm:p-1 antialiased">
 
 
     <!-- <main class="flex-grow w-full"> -->
