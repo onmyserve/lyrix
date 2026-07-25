@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--!gnfrgixjiap+leh+ez!1*)9bb_645!^ntx$_9e-)bwzaam^x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['onmyserve.pythonanywhere.com']
 
 
 # Application definition
@@ -70,7 +70,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lyrix.wsgi.application'
-
+CSRF_TRUSTED_ORIGINS = [                                                                                                                        
+          'https://onmyserve.pythonanywhere.com',                                                                                                 
+ ] 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -118,6 +120,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 LOGIN_URL = 'login'
 
