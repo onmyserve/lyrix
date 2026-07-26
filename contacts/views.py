@@ -6,10 +6,16 @@ from .forms import ContactForm
 from utils.search import ModelSearcher
 from utils.importer import ModelFileImporter
 from utils.exporter import ModelFileExporter
+from utils.filters import ModelFilterer
 
 contact_searcher = ModelSearcher(
     search_fields=['first_name', 'last_name', 'email', 'tag'],
     param_name='q'
+)
+
+contact_filterer = ModelFilterer(
+    exact_fields=['tag'],
+    date_fields=['created_at']
 )
 
 contact_importer = ModelFileImporter(
@@ -42,12 +48,23 @@ contact_exporter = ModelFileExporter(
 @login_required
 def contact_list_view(request):
     contacts_qs = Contact.objects.all().order_by('-created_at')
-    contacts, search_query = contact_searcher.search(request, contacts_qs)
+    contacts_qs, search_query = contact_searcher.search(request, contacts_qs)
+    contacts_qs, active_filters = contact_filterer.filter(request, contacts_qs)
+
+    available_tags = contact_filterer.get_distinct_values(Contact.objects.all(), 'tag')
+    # Default common tags if none in DB yet
+    if not available_tags:
+        available_tags = ['Customer', 'VIP', 'Lead', 'Enterprise', 'Partner']
+
     return render(request, 'contacts/contact_list.html', {
-        'contacts': contacts,
+        'contacts': contacts_qs,
         'search_query': search_query,
+        'active_filters': active_filters,
+        'selected_tag': request.GET.get('tag', ''),
+        'selected_date_range': request.GET.get('created_at_range', request.GET.get('date_range', '')),
+        'available_tags': available_tags,
         'total_count': Contact.objects.count(),
-        'filtered_count': len(contacts),
+        'filtered_count': contacts_qs.count(),
     })
 
 @login_required
@@ -76,8 +93,9 @@ def import_contacts_view(request):
 def export_contacts_view(request):
     export_format = request.GET.get('format', 'csv').lower()
     contacts_qs = Contact.objects.all().order_by('-created_at')
-    filtered_qs, _ = contact_searcher.search(request, contacts_qs)
-    return contact_exporter.export_response(filtered_qs, format=export_format)
+    contacts_qs, _ = contact_searcher.search(request, contacts_qs)
+    contacts_qs, _ = contact_filterer.filter(request, contacts_qs)
+    return contact_exporter.export_response(contacts_qs, format=export_format)
 
 @login_required
 def add_contact_view(request):

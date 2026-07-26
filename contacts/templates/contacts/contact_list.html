@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- HEADER -->
-<header class="flex justify-between items-end mb-4 flex-shrink-0 relative z-10">
+<header class="flex justify-between items-end mb-4 flex-shrink-0 relative z-40">
     <div class="flex flex-col gap-unit-xs">
         <h1 class="font-display-lg text-display-lg text-on-surface">Contacts</h1>
         <p class="font-body-md text-on-surface-variant">
@@ -31,19 +31,19 @@
         </button>
         <!-- Export Dropdown -->
         <div class="relative inline-block text-left">
-            <button onclick="event.stopPropagation(); document.getElementById('export-menu').classList.toggle('hidden')"
+            <button type="button" id="export-btn" onclick="toggleExportMenu(event)"
                 class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-sm cursor-pointer">
                 <span class="material-symbols-outlined text-[20px]">download</span>
                 <span>Export</span>
                 <span class="material-symbols-outlined text-[18px]">expand_more</span>
             </button>
-            <div id="export-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-xl border border-black/10 z-30 py-1 overflow-hidden">
-                <a href="{% url 'contacts:export_contacts' %}?format=csv{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
+            <div id="export-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-2xl border border-black/10 z-50 py-1 overflow-hidden">
+                <a href="{% url 'contacts:export_contacts' %}?format=csv{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_tag %}&tag={{ selected_tag|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}"
                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium">
                     <span class="material-symbols-outlined text-[20px] text-emerald-600">csv</span>
                     <span>Export to CSV</span>
                 </a>
-                <a href="{% url 'contacts:export_contacts' %}?format=excel{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
+                <a href="{% url 'contacts:export_contacts' %}?format=excel{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_tag %}&tag={{ selected_tag|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}"
                    class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium border-t border-black/5">
                     <span class="material-symbols-outlined text-[20px] text-electric-violet">table_view</span>
                     <span>Export to Excel (.xlsx)</span>
@@ -73,9 +73,15 @@
 {% endif %}
 
 <!-- CONTROL BAR -->
-<section class="flex flex-wrap items-center gap-unit-md mb-4 flex-shrink-0 relative z-10">
+<section class="flex flex-wrap items-center gap-unit-md mb-4 flex-shrink-0 relative z-30">
     <!-- Search Form -->
     <form method="GET" action="{% url 'contacts:contact_list' %}" class="flex-1 min-w-[320px] flex items-center gap-2">
+        {% if selected_tag %}
+        <input type="hidden" name="tag" value="{{ selected_tag }}">
+        {% endif %}
+        {% if selected_date_range %}
+        <input type="hidden" name="created_at_range" value="{{ selected_date_range }}">
+        {% endif %}
         <div class="relative flex-1">
             <span
                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
@@ -85,7 +91,7 @@
                 class="w-full bg-white border border-black/5 focus:border-electric-violet focus:ring-1 focus:ring-electric-violet/30 rounded-xl py-3 pl-12 pr-10 text-on-surface placeholder:text-outline shadow-sm transition-all"
                 placeholder="Search name, email, tag..." type="text" />
             {% if search_query %}
-            <a href="{% url 'contacts:contact_list' %}"
+            <a href="{% url 'contacts:contact_list' %}{% if selected_tag %}?tag={{ selected_tag|urlencode }}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}{% elif selected_date_range %}?created_at_range={{ selected_date_range|urlencode }}{% endif %}"
                title="Clear search"
                class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-variant transition-all">
                 <span class="material-symbols-outlined text-[18px]">close</span>
@@ -109,12 +115,66 @@
             <span class="material-symbols-outlined text-[20px]">grid_view</span>
         </button>
     </div>
-    <!-- Ghost Buttons -->
-    <button
-        class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium">
-        <span class="material-symbols-outlined text-[20px]">filter_alt</span>
-        <span class="font-label-md">Add Filter</span>
-    </button>
+    <!-- Filter Dropdown -->
+    <div class="relative inline-block text-left">
+        <button type="button" id="filter-btn" onclick="toggleFilterMenu(event)"
+            class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium cursor-pointer {% if active_filters %}border-electric-violet text-electric-violet bg-electric-violet/5{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+            <span class="font-label-md">Filter</span>
+            {% if active_filters %}
+            <span class="w-2 h-2 rounded-full bg-electric-violet"></span>
+            {% endif %}
+        </button>
+        <div id="filter-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-2xl border border-black/10 z-50 p-4 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-black/5 pb-2">
+                <span class="font-semibold text-sm text-on-surface flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-electric-violet">tune</span>
+                    Filter Contacts
+                </span>
+                <button onclick="document.getElementById('filter-menu').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-0.5 rounded-md hover:bg-black/5">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <form method="GET" action="{% url 'contacts:contact_list' %}" class="flex flex-col gap-3">
+                {% if search_query %}
+                <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Filter by Tag</label>
+                    <select name="tag" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Tags</option>
+                        {% for tag_item in available_tags %}
+                        <option value="{{ tag_item }}" {% if selected_tag == tag_item %}selected{% endif %}>{{ tag_item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Date Added</label>
+                    <select name="created_at_range" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Time</option>
+                        <option value="today" {% if selected_date_range == 'today' %}selected{% endif %}>Today</option>
+                        <option value="7days" {% if selected_date_range == '7days' %}selected{% endif %}>Past 7 Days</option>
+                        <option value="30days" {% if selected_date_range == '30days' %}selected{% endif %}>Past 30 Days</option>
+                        <option value="this_year" {% if selected_date_range == 'this_year' %}selected{% endif %}>This Year</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-black/5 mt-1">
+                    <a href="{% url 'contacts:contact_list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+                       class="px-3 py-1.5 rounded-lg border border-black/10 text-xs font-medium text-on-surface-variant hover:bg-surface-variant transition-all">
+                        Reset
+                    </a>
+                    <button type="submit"
+                            class="primary-gradient text-white px-4 py-1.5 rounded-lg font-medium text-xs shadow-md hover:opacity-95 transition-all cursor-pointer">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div
         class="flex items-center gap-3 px-unit-md py-3 rounded-xl border border-black/5 bg-white text-on-surface shadow-sm font-medium">
         <span class="font-label-md">Watch Field</span>
@@ -131,6 +191,47 @@
         <span class="font-label-md">Columns</span>
     </button>
 </section>
+
+{% if active_filters or search_query %}
+<!-- ACTIVE FILTERS BADGES -->
+<div class="flex flex-wrap items-center gap-2 mb-4 relative z-10 text-xs font-medium">
+    <span class="text-on-surface-variant flex items-center gap-1">
+        <span class="material-symbols-outlined text-[16px]">filter_list</span>
+        Active filters:
+    </span>
+
+    {% if search_query %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-electric-violet/10 text-electric-violet border border-electric-violet/20 font-semibold">
+        Search: "{{ search_query }}"
+        <a href="{% url 'contacts:contact_list' %}{% if selected_tag %}?tag={{ selected_tag|urlencode }}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}{% elif selected_date_range %}?created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_tag %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-soft-cyan/20 text-[#008ba3] border border-soft-cyan/30 font-semibold">
+        Tag: {{ selected_tag }}
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_date_range %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 font-semibold">
+        Date: {{ active_filters.created_at_range|default:selected_date_range }}
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_tag %}tag={{ selected_tag|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    <a href="{% url 'contacts:contact_list' %}" class="text-on-surface-variant hover:text-rose-600 underline text-xs transition-colors ml-1">
+        Clear all
+    </a>
+</div>
+{% endif %}
 
 <!-- CONTACTS TABLE CONTAINER -->
 <section
@@ -267,11 +368,41 @@
 </div>
 
 <script>
-    // Close export dropdown when clicking outside
-    window.addEventListener('click', () => {
-        const menu = document.getElementById('export-menu');
-        if (menu && !menu.classList.contains('hidden')) {
-            menu.classList.add('hidden');
+    function toggleFilterMenu(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const filterMenu = document.getElementById('filter-menu');
+        const exportMenu = document.getElementById('export-menu');
+        if (exportMenu) exportMenu.classList.add('hidden');
+        if (filterMenu) {
+            filterMenu.classList.toggle('hidden');
+        }
+    }
+
+    function toggleExportMenu(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const filterMenu = document.getElementById('filter-menu');
+        const exportMenu = document.getElementById('export-menu');
+        if (filterMenu) filterMenu.classList.add('hidden');
+        if (exportMenu) {
+            exportMenu.classList.toggle('hidden');
+        }
+    }
+
+    // Close dropdowns when clicking outside
+    window.addEventListener('click', (e) => {
+        const filterMenu = document.getElementById('filter-menu');
+        const exportMenu = document.getElementById('export-menu');
+        if (filterMenu && !filterMenu.contains(e.target) && !e.target.closest('#filter-btn')) {
+            filterMenu.classList.add('hidden');
+        }
+        if (exportMenu && !exportMenu.contains(e.target) && !e.target.closest('#export-btn')) {
+            exportMenu.classList.add('hidden');
         }
     });
 

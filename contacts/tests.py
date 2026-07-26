@@ -100,3 +100,28 @@ class ContactExportViewTestCase(TestCase):
         self.assertNotIn('jim@dundermifflin.com', content)
 
 
+class ContactFilterViewTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='password123')
+        self.c1 = Contact.objects.create(
+            first_name='Ryan', last_name='Howard', email='ryan@dundermifflin.com', tag='Temp'
+        )
+        self.c2 = Contact.objects.create(
+            first_name='Andy', last_name='Bernard', email='andy@dundermifflin.com', tag='Sales'
+        )
+
+    def test_filter_contacts_by_tag(self):
+        self.client.login(username='testuser', password='password123')
+        response = self.client.get(reverse('contacts:contact_list'), {'tag': 'Temp'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['contacts']), 1)
+        self.assertEqual(response.context['contacts'][0], self.c1)
+
+    def test_filter_contacts_by_date_range(self):
+        self.client.login(username='testuser', password='password123')
+        response = self.client.get(reverse('contacts:contact_list'), {'created_at_range': 'today'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['contacts']), 2)
+
+
+

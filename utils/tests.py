@@ -169,3 +169,37 @@ class ReusableExporterTestCase(TestCase):
         self.assertEqual(rows[1], ('Alice', 'Smith', 'alice@example.com', 'VIP'))
 
 
+from utils.filters import ModelFilterer, filter_queryset_by_params
+
+
+class ReusableFilterTestCase(TestCase):
+    def setUp(self):
+        self.c1 = Contact.objects.create(
+            first_name='Alice', last_name='Smith', email='alice@example.com', tag='VIP'
+        )
+        self.c2 = Contact.objects.create(
+            first_name='Bob', last_name='Jones', email='bob@test.org', tag='Lead'
+        )
+        self.c3 = Contact.objects.create(
+            first_name='Charlie', last_name='Smith', email='charlie@enterprise.com', tag='Customer'
+        )
+
+    def test_filter_exact_fields(self):
+        qs = Contact.objects.all()
+        filtered, active = filter_queryset_by_params(qs, {'tag': 'VIP'}, exact_fields=['tag'])
+        self.assertEqual(list(filtered), [self.c1])
+        self.assertEqual(active, {'tag': 'VIP'})
+
+    def test_filter_date_range(self):
+        qs = Contact.objects.all()
+        filtered, active = filter_queryset_by_params(qs, {'created_at_range': 'today'}, date_fields=['created_at'])
+        self.assertEqual(filtered.count(), 3)
+        self.assertEqual(active.get('created_at_range'), 'Today')
+
+    def test_model_filterer(self):
+        filterer = ModelFilterer(exact_fields=['tag'], date_fields=['created_at'])
+        tags = filterer.get_distinct_values(Contact.objects.all(), 'tag')
+        self.assertCountEqual(tags, ['Customer', 'Lead', 'VIP'])
+
+
+
