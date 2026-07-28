@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--!gnfrgixjiap+leh+ez!1*)9bb_645!^ntx$_9e-)bwzaam^x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['onmyserve.pythonanywhere.com']
+ALLOWED_HOSTS = ['onmyserve.pythonanywhere.com', '127.0.0.1']
 
 
 # Application definition
@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['onmyserve.pythonanywhere.com']
 INSTALLED_APPS = [
     'contacts',
     'lyrix_app',
+    'utils',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
