@@ -124,4 +124,100 @@ class ContactFilterViewTestCase(TestCase):
         self.assertEqual(len(response.context['contacts']), 2)
 
 
+class ContactAddViewTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='password123')
+
+    def test_add_contact_get_request(self):
+        self.client.login(username='testuser', password='password123')
+        response = self.client.get(reverse('contacts:add_contact'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'CUSTOMER DETAILS')
+        self.assertContains(response, 'KYC DOCUMENT DETAILS')
+        self.assertContains(response, 'KYC CID DETAILS')
+        self.assertContains(response, 'ADDRESS DETAILS')
+        self.assertContains(response, 'BANK DETAILS')
+        self.assertContains(response, 'NOMINEE DETAILS')
+        self.assertContains(response, 'FAMILY DETAILS')
+        self.assertContains(response, 'MANDATE DETAILS')
+        self.assertContains(response, 'NSE')
+        self.assertContains(response, 'BSE')
+        self.assertContains(response, 'CAMS')
+        self.assertContains(response, 'KFIN')
+
+    def test_add_contact_post_success(self):
+        self.client.login(username='testuser', password='password123')
+        data = {
+            'mobile_no': '+1234567890',
+            'name': 'John Doe',
+            'dob': '1990-05-15',
+            'email': 'john.doe@example.com',
+            'place_of_birth': 'Chicago',
+            'alternate_no': '+0987654321',
+            'pan_no': 'ABCDE1234F',
+            'aadhar_no': '123456789012',
+            'gst_no': '22AAAAA0000A1Z5',
+            'uin': 'UIN987654321',
+            'ckyc_no': 'CKYC123',
+            'uiic_cid': 'UIIC456',
+            'tnia_cid': 'TNIA789',
+            'bse_ucc': 'BSE111',
+            'nse_ucc': 'NSE222',
+            'lic_cid': 'LIC333',
+            'pincode': '600001',
+            'post_office': 'Central H.O',
+            'village': 'Chennai North',
+            'street_address': '101 Gandhi Road',
+            'taluk': 'Egmore',
+            'district': 'Chennai',
+            'state': 'Tamil Nadu',
+            'savings_bank_name': 'State Bank of India',
+            'savings_account_no': '123456789012',
+            'father_name': 'Robert Doe',
+            'mother_name': 'Mary Doe',
+            'spouse_name': 'Jane Doe',
+            'daughter_name': 'Emily Doe',
+            'son_name': 'Tommy Doe',
+            'father_height_weight': '175 cm / 70 kg',
+            'nse_mandate_payer': 'John Doe',
+            'nse_mandate_id': 'NSE123456',
+            'bse_mandate_umrn': 'UMRN987654',
+            'cams_mandate_limit': '100000',
+            'kfin_mandate_bank': 'HDFC Bank',
+            'tag': 'VIP'
+        }
+        response = self.client.post(reverse('contacts:add_contact'), data)
+        self.assertRedirects(response, reverse('contacts:contact_list'))
+        contact = Contact.objects.get(email='john.doe@example.com')
+        self.assertEqual(contact.name, 'John Doe')
+        self.assertEqual(contact.father_name, 'Robert Doe')
+        self.assertEqual(contact.nse_mandate_payer, 'John Doe')
+        self.assertEqual(contact.nse_mandate_id, 'NSE123456')
+        self.assertEqual(contact.bse_mandate_umrn, 'UMRN987654')
+        self.assertEqual(contact.cams_mandate_limit, '100000')
+        self.assertEqual(contact.kfin_mandate_bank, 'HDFC Bank')
+
+
+
+
+
+
+
+
+
+    def test_add_contact_missing_mandatory_fields(self):
+        self.client.login(username='testuser', password='password123')
+        data = {
+            'email': 'missing@example.com',
+            'place_of_birth': 'Chicago',
+        }
+        response = self.client.post(reverse('contacts:add_contact'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'name', 'This field is required.')
+        self.assertFormError(response.context['form'], 'mobile_no', 'This field is required.')
+        self.assertFormError(response.context['form'], 'dob', 'This field is required.')
+
+
+
+
 
