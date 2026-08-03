@@ -9,12 +9,12 @@ from utils.exporter import ModelFileExporter
 from utils.filters import ModelFilterer
 
 contact_searcher = ModelSearcher(
-    search_fields=['first_name', 'last_name', 'email', 'tag'],
+    search_fields=['first_name', 'last_name', 'email'],
     param_name='q'
 )
 
 contact_filterer = ModelFilterer(
-    exact_fields=['tag'],
+    exact_fields=[],
     date_fields=['created_at']
 )
 
@@ -24,21 +24,19 @@ contact_importer = ModelFileImporter(
         'first_name': ['first_name', 'first name', 'fname', 'given name', 'name'],
         'last_name': ['last_name', 'last name', 'lname', 'surname', 'family name'],
         'email': ['email', 'email address', 'e-mail', 'mail'],
-        'tag': ['tag', 'tags', 'group', 'type', 'category', 'status'],
     },
     required_fields=['first_name', 'email'],
     unique_key='email',
     update_existing=True,
-    default_values={'tag': 'Customer'}
+    default_values={}
 )
 
 contact_exporter = ModelFileExporter(
-    fields=['first_name', 'last_name', 'email', 'tag', 'created_at'],
+    fields=['first_name', 'last_name', 'email', 'created_at'],
     header_labels={
         'first_name': 'First Name',
         'last_name': 'Last Name',
         'email': 'Email Address',
-        'tag': 'Tag',
         'created_at': 'Date Added',
     },
     default_filename='contacts_export',
@@ -51,18 +49,11 @@ def contact_list_view(request):
     contacts_qs, search_query = contact_searcher.search(request, contacts_qs)
     contacts_qs, active_filters = contact_filterer.filter(request, contacts_qs)
 
-    available_tags = contact_filterer.get_distinct_values(Contact.objects.all(), 'tag')
-    # Default common tags if none in DB yet
-    if not available_tags:
-        available_tags = ['Customer', 'VIP', 'Lead', 'Enterprise', 'Partner']
-
     return render(request, 'contacts/contact_list.html', {
         'contacts': contacts_qs,
         'search_query': search_query,
         'active_filters': active_filters,
-        'selected_tag': request.GET.get('tag', ''),
         'selected_date_range': request.GET.get('created_at_range', request.GET.get('date_range', '')),
-        'available_tags': available_tags,
         'total_count': Contact.objects.count(),
         'filtered_count': contacts_qs.count(),
     })
