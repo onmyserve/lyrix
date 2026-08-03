@@ -86,33 +86,6 @@ class Contact(models.Model):
     son_pan = models.CharField(max_length=20, blank=True, default='')
     son_aadhar = models.CharField(max_length=20, blank=True, default='')
     son_height_weight = models.CharField(max_length=50, blank=True, default='')
-
-    # Mandate Details (NSE, BSE, CAMS, KFIN)
-    nse_mandate_payer = models.CharField(max_length=100, blank=True, default='')
-    nse_mandate_id = models.CharField(max_length=50, blank=True, default='')
-    nse_mandate_umrn = models.CharField(max_length=50, blank=True, default='')
-    nse_mandate_limit = models.CharField(max_length=50, blank=True, default='')
-    nse_mandate_bank = models.CharField(max_length=100, blank=True, default='')
-
-    bse_mandate_payer = models.CharField(max_length=100, blank=True, default='')
-    bse_mandate_id = models.CharField(max_length=50, blank=True, default='')
-    bse_mandate_umrn = models.CharField(max_length=50, blank=True, default='')
-    bse_mandate_limit = models.CharField(max_length=50, blank=True, default='')
-    bse_mandate_bank = models.CharField(max_length=100, blank=True, default='')
-
-    cams_mandate_payer = models.CharField(max_length=100, blank=True, default='')
-    cams_mandate_id = models.CharField(max_length=50, blank=True, default='')
-    cams_mandate_umrn = models.CharField(max_length=50, blank=True, default='')
-    cams_mandate_limit = models.CharField(max_length=50, blank=True, default='')
-    cams_mandate_bank = models.CharField(max_length=100, blank=True, default='')
-
-    kfin_mandate_payer = models.CharField(max_length=100, blank=True, default='')
-    kfin_mandate_id = models.CharField(max_length=50, blank=True, default='')
-    kfin_mandate_umrn = models.CharField(max_length=50, blank=True, default='')
-    kfin_mandate_limit = models.CharField(max_length=50, blank=True, default='')
-    kfin_mandate_bank = models.CharField(max_length=100, blank=True, default='')
-
-    tag = models.CharField(max_length=50, default="Customer")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

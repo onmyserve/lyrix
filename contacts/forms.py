@@ -1,10 +1,12 @@
 from django import forms
 from .models import Contact
 
+INDIAN_DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d-%m-%Y', '%Y-%m-%d']
+
 class ContactForm(forms.ModelForm):
     mobile_no = forms.CharField(required=True, label="Mobile No")
     name = forms.CharField(required=True, label="Name")
-    dob = forms.DateField(required=True, label="Date of Birth", widget=forms.DateInput(attrs={'type': 'date'}))
+    dob = forms.DateField(required=True, label="Date of Birth", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     email = forms.EmailField(required=True, label="Email")
 
     pan_no = forms.CharField(required=False, label="PAN")
@@ -52,7 +54,7 @@ class ContactForm(forms.ModelForm):
 
     nominee_name = forms.CharField(required=False, label="Nominee Name")
     nominee_relationship = forms.CharField(required=False, label="Relationship")
-    nominee_dob = forms.DateField(required=False, label="Nominee DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    nominee_dob = forms.DateField(required=False, label="Nominee DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     nominee_pan = forms.CharField(required=False, label="Nominee PAN")
     nominee_aadhar = forms.CharField(required=False, label="Nominee Aadhaar")
     nominee_mobile = forms.CharField(required=False, label="Nominee Mobile")
@@ -60,7 +62,7 @@ class ContactForm(forms.ModelForm):
 
     # Father
     father_name = forms.CharField(required=False, label="Father Name")
-    father_dob = forms.DateField(required=False, label="Father DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    father_dob = forms.DateField(required=False, label="Father DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     father_mobile = forms.CharField(required=False, label="Father Mobile")
     father_pan = forms.CharField(required=False, label="Father PAN")
     father_aadhar = forms.CharField(required=False, label="Father Aadhaar")
@@ -68,7 +70,7 @@ class ContactForm(forms.ModelForm):
 
     # Mother
     mother_name = forms.CharField(required=False, label="Mother Name")
-    mother_dob = forms.DateField(required=False, label="Mother DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    mother_dob = forms.DateField(required=False, label="Mother DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     mother_mobile = forms.CharField(required=False, label="Mother Mobile")
     mother_pan = forms.CharField(required=False, label="Mother PAN")
     mother_aadhar = forms.CharField(required=False, label="Mother Aadhaar")
@@ -76,7 +78,7 @@ class ContactForm(forms.ModelForm):
 
     # Spouse
     spouse_name = forms.CharField(required=False, label="Spouse Name")
-    spouse_dob = forms.DateField(required=False, label="Spouse DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    spouse_dob = forms.DateField(required=False, label="Spouse DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     spouse_mobile = forms.CharField(required=False, label="Spouse Mobile")
     spouse_pan = forms.CharField(required=False, label="Spouse PAN")
     spouse_aadhar = forms.CharField(required=False, label="Spouse Aadhaar")
@@ -84,7 +86,7 @@ class ContactForm(forms.ModelForm):
 
     # Daughter
     daughter_name = forms.CharField(required=False, label="Daughter Name")
-    daughter_dob = forms.DateField(required=False, label="Daughter DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    daughter_dob = forms.DateField(required=False, label="Daughter DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     daughter_mobile = forms.CharField(required=False, label="Daughter Mobile")
     daughter_pan = forms.CharField(required=False, label="Daughter PAN")
     daughter_aadhar = forms.CharField(required=False, label="Daughter Aadhaar")
@@ -92,38 +94,11 @@ class ContactForm(forms.ModelForm):
 
     # Son
     son_name = forms.CharField(required=False, label="Son Name")
-    son_dob = forms.DateField(required=False, label="Son DOB", widget=forms.DateInput(attrs={'type': 'date'}))
+    son_dob = forms.DateField(required=False, label="Son DOB", input_formats=INDIAN_DATE_INPUT_FORMATS, widget=forms.DateInput(format='%d/%m/%Y', attrs={'type': 'text', 'placeholder': 'DD/MM/YYYY'}))
     son_mobile = forms.CharField(required=False, label="Son Mobile")
     son_pan = forms.CharField(required=False, label="Son PAN")
     son_aadhar = forms.CharField(required=False, label="Son Aadhaar")
-    # Mandate Details - NSE
-    nse_mandate_payer = forms.CharField(required=False, label="NSE Payer")
-    nse_mandate_id = forms.CharField(required=False, label="NSE Mandate ID")
-    nse_mandate_umrn = forms.CharField(required=False, label="NSE UMRN No")
-    nse_mandate_limit = forms.CharField(required=False, label="NSE Limit")
-    nse_mandate_bank = forms.CharField(required=False, label="NSE Bank")
-
-    # Mandate Details - BSE
-    bse_mandate_payer = forms.CharField(required=False, label="BSE Payer")
-    bse_mandate_id = forms.CharField(required=False, label="BSE Mandate ID")
-    bse_mandate_umrn = forms.CharField(required=False, label="BSE UMRN No")
-    bse_mandate_limit = forms.CharField(required=False, label="BSE Limit")
-    bse_mandate_bank = forms.CharField(required=False, label="BSE Bank")
-
-    # Mandate Details - CAMS
-    cams_mandate_payer = forms.CharField(required=False, label="CAMS Payer")
-    cams_mandate_id = forms.CharField(required=False, label="CAMS Mandate ID")
-    cams_mandate_umrn = forms.CharField(required=False, label="CAMS UMRN No")
-    cams_mandate_limit = forms.CharField(required=False, label="CAMS Limit")
-    cams_mandate_bank = forms.CharField(required=False, label="CAMS Bank")
-
-    # Mandate Details - KFIN
-    kfin_mandate_payer = forms.CharField(required=False, label="KFIN Payer")
-    kfin_mandate_id = forms.CharField(required=False, label="KFIN Mandate ID")
-    kfin_mandate_umrn = forms.CharField(required=False, label="KFIN UMRN No")
-    kfin_mandate_limit = forms.CharField(required=False, label="KFIN Limit")
-    kfin_mandate_bank = forms.CharField(required=False, label="KFIN Bank")
-
+    
     class Meta:
         model = Contact
         fields = [
@@ -141,11 +116,7 @@ class ContactForm(forms.ModelForm):
             'spouse_name', 'spouse_dob', 'spouse_mobile', 'spouse_pan', 'spouse_aadhar', 'spouse_height_weight',
             'daughter_name', 'daughter_dob', 'daughter_mobile', 'daughter_pan', 'daughter_aadhar', 'daughter_height_weight',
             'son_name', 'son_dob', 'son_mobile', 'son_pan', 'son_aadhar', 'son_height_weight',
-            'nse_mandate_payer', 'nse_mandate_id', 'nse_mandate_umrn', 'nse_mandate_limit', 'nse_mandate_bank',
-            'bse_mandate_payer', 'bse_mandate_id', 'bse_mandate_umrn', 'bse_mandate_limit', 'bse_mandate_bank',
-            'cams_mandate_payer', 'cams_mandate_id', 'cams_mandate_umrn', 'cams_mandate_limit', 'cams_mandate_bank',
-            'kfin_mandate_payer', 'kfin_mandate_id', 'kfin_mandate_umrn', 'kfin_mandate_limit', 'kfin_mandate_bank',
-            'tag'
+           
         ]
 
 

@@ -3,585 +3,933 @@
 {% block title %}Add Contact - Lyrix Enterprise CRM{% endblock %}
 
 {% block content %}
-<div class="w-full h-full overflow-y-auto pb-20 pr-1">
-    <div class="max-w-4xl mx-auto p-6 md:p-8 glass-card rounded-[20px] bg-white border border-black/5 shadow-sm mt-4 mb-10">
+<div class="w-full pb-10">
+    <div class="w-full p-6 md:p-8 glass-card rounded-[20px] bg-white border border-black/5 shadow-sm mt-2 mb-10">
 
-    <div class="flex items-center justify-between mb-6 pb-4 border-b border-black/5">
-        <div>
-            <h2 class="font-display-lg text-2xl font-bold text-on-surface">Add New Contact</h2>
-            <p class="text-sm text-on-surface-variant mt-0.5">Fill in the contact information below.</p>
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-black/5">
+            <div>
+                <h2 class="font-display-lg text-2xl font-bold text-on-surface">Add New Contact</h2>
+                <p class="text-sm text-on-surface-variant mt-0.5">Fill in the contact information below.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="toggleAllAccordions()" id="toggle-all-btn"
+                    class="px-3.5 py-2 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">unfold_more</span>
+                    <span id="toggle-all-text">Expand All</span>
+                </button>
+                <a href="{% url 'contacts:contact_list' %}"
+                    class="px-4 py-2 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-sm transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    Back to Contacts
+                </a>
+            </div>
         </div>
-        <a href="{% url 'contacts:contact_list' %}" class="px-4 py-2 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-sm transition-all flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Contacts
-        </a>
-    </div>
 
-    <form method="POST" class="space-y-6">
-        {% csrf_token %}
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
 
-        {% if form.errors %}
-        <div class="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            <p class="font-semibold mb-1">Please correct the errors below:</p>
-            <ul class="list-disc list-inside space-y-0.5">
-                {% for field, errors in form.errors.items %}
+            {% if form.errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                <p class="font-semibold mb-1">Please correct the errors below:</p>
+                <ul class="list-disc list-inside space-y-0.5">
+                    {% for field, errors in form.errors.items %}
                     {% for error in errors %}
-                        <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
                     {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <!-- CUSTOMER DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">person</span>
-                CUSTOMER DETAILS
-            </h3>
-
-            <!-- Row 1: MOBILE NO | NAME | DOB -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_mobile_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Mobile No <span class="text-red-500">*</span></label>
-                    <input type="text" id="id_mobile_no" name="mobile_no" value="{{ form.mobile_no.value|default:'' }}" required placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_name" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Name <span class="text-red-500">*</span></label>
-                    <input type="text" id="id_name" name="name" value="{{ form.name.value|default:'' }}" required placeholder="John Doe" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_dob" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">DOB <span class="text-red-500">*</span></label>
-                    <input type="date" id="id_dob" name="dob" value="{{ form.dob.value|default:'' }}" required class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
+                    {% endfor %}
+                </ul>
             </div>
+            {% endif %}
 
-
-            <!-- Row 2: EMAIL | PLACE OF BIRTH | ALTERNATE NO -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_email" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Email <span class="text-red-500">*</span></label>
-                    <input type="email" id="id_email" name="email" value="{{ form.email.value|default:'' }}" required placeholder="john@example.com" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_place_of_birth" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Place of Birth</label>
-                    <input type="text" id="id_place_of_birth" name="place_of_birth" value="{{ form.place_of_birth.value|default:'' }}" placeholder="New York, USA" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_alternate_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Alternate No</label>
-                    <input type="text" id="id_alternate_no" name="alternate_no" value="{{ form.alternate_no.value|default:'' }}" placeholder="+1 987 654 3210" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-            </div>
-        </div>
-
-        <!-- KYC DOCUMENT DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">badge</span>
-                KYC DOCUMENT DETAILS
-            </h3>
-
-            <!-- PAN | AADHAR | GST NO | UIN -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label for="id_pan_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">PAN</label>
-                    <input type="text" id="id_pan_no" name="pan_no" value="{{ form.pan_no.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_aadhar_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Aadhar</label>
-                    <input type="text" id="id_aadhar_no" name="aadhar_no" value="{{ form.aadhar_no.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_gst_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">GST No</label>
-                    <input type="text" id="id_gst_no" name="gst_no" value="{{ form.gst_no.value|default:'' }}" placeholder="22AAAAA0000A1Z5" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_uin" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">UIN</label>
-                    <input type="text" id="id_uin" name="uin" value="{{ form.uin.value|default:'' }}" placeholder="UIN123456789" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-            </div>
-        </div>
-
-        <!-- KYC CID DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">id_card</span>
-                KYC CID DETAILS
-            </h3>
-
-            <!-- Row 1: CKYC NO | UIIC CID | TNIA CID -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_ckyc_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">CKYC No</label>
-                    <input type="text" id="id_ckyc_no" name="ckyc_no" value="{{ form.ckyc_no.value|default:'' }}" placeholder="CKYC12345678" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_uiic_cid" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">UIIC CID</label>
-                    <input type="text" id="id_uiic_cid" name="uiic_cid" value="{{ form.uiic_cid.value|default:'' }}" placeholder="UIIC987654" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_tnia_cid" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">TNIA CID</label>
-                    <input type="text" id="id_tnia_cid" name="tnia_cid" value="{{ form.tnia_cid.value|default:'' }}" placeholder="TNIA456789" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-            </div>
-
-            <!-- Row 2: BSE UCC | NSE UCC | LIC CID -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_bse_ucc" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">BSE UCC</label>
-                    <input type="text" id="id_bse_ucc" name="bse_ucc" value="{{ form.bse_ucc.value|default:'' }}" placeholder="BSE123456" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_nse_ucc" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">NSE UCC</label>
-                    <input type="text" id="id_nse_ucc" name="nse_ucc" value="{{ form.nse_ucc.value|default:'' }}" placeholder="NSE654321" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-                <div>
-                    <label for="id_lic_cid" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">LIC CID</label>
-                    <input type="text" id="id_lic_cid" name="lic_cid" value="{{ form.lic_cid.value|default:'' }}" placeholder="LIC789123" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                </div>
-            </div>
-        </div>
-
-        <!-- ADDRESS DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">location_on</span>
-                ADDRESS DETAILS
-            </h3>
-
-            <!-- Row 1: PIN CODE | POST OFFICE | VILLAGE | DOOR NO/ STREET -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label for="id_pincode" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Pin Code</label>
-                    <input type="text" id="id_pincode" name="pincode" value="{{ form.pincode.value|default:'' }}" placeholder="600001" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_post_office" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Post Office</label>
-                    <input type="text" id="id_post_office" name="post_office" value="{{ form.post_office.value|default:'' }}" placeholder="Central H.O" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_village" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Village</label>
-                    <input type="text" id="id_village" name="village" value="{{ form.village.value|default:'' }}" placeholder="Town/Village Name" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_street_address" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Door No / Street</label>
-                    <input type="text" id="id_street_address" name="street_address" value="{{ form.street_address.value|default:'' }}" placeholder="123 Main Street, Apt 4B" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-            </div>
-
-            <!-- Row 2: TALUK | DISTRICT | STATE -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_taluk" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Taluk</label>
-                    <input type="text" id="id_taluk" name="taluk" value="{{ form.taluk.value|default:'' }}" placeholder="Taluk Name" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_district" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">District</label>
-                    <input type="text" id="id_district" name="district" value="{{ form.district.value|default:'' }}" placeholder="District Name" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_state" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">State</label>
-                    <input type="text" id="id_state" name="state" value="{{ form.state.value|default:'' }}" placeholder="State Name" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-            </div>
-        </div>
-
-        <!-- BANK DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-6">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">account_balance</span>
-                BANK DETAILS
-            </h3>
-
-            <!-- SAVING ACCOUNT SUB-SECTION -->
-            <div class="p-4 bg-white rounded-xl border border-black/10 space-y-4 shadow-2xs">
-                <div class="flex items-center justify-between border-b border-black/5 pb-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[16px] text-emerald-600">savings</span>
-                        SAVING ACCOUNT
-                    </span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold uppercase">Primary</span>
-                </div>
-                <!-- Row 1: TYPE | IFSC | MICR -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="id_bank_account_type" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Type</label>
-                        <input type="text" readonly name="bank_account_type" value="Savings Account" class="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm font-medium cursor-not-allowed">
+            <!-- CUSTOMER DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                        <span>CUSTOMER DETAILS</span>
                     </div>
-                    <div>
-                        <label for="id_savings_ifsc_code" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">IFSC</label>
-                        <input type="text" id="id_savings_ifsc_code" name="savings_ifsc_code" value="{{ form.savings_ifsc_code.value|default:form.ifsc_code.value|default:'' }}" placeholder="SBIN0001234" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
+
+                <div class="accordion-content space-y-4 pt-2 border-t border-black/5">
+                    <!-- Row 1: MOBILE NO | NAME | DOB -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_mobile_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Mobile
+                                No <span class="text-red-500">*</span></label>
+                            <input type="text" id="id_mobile_no" name="mobile_no"
+                                value="{{ form.mobile_no.value|default:'' }}" required placeholder="+1 987 654 3210"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_name"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Name
+                                <span class="text-red-500">*</span></label>
+                            <input type="text" id="id_name" name="name" value="{{ form.name.value|default:'' }}"
+                                required placeholder="Mani Kandan"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_dob"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">DOB
+                                <span class="text-red-500">*</span></label>
+                            <input type="text" id="id_dob" name="dob"
+                                value="{{ form.dob.value|date:'d/m/Y'|default:'' }}" required placeholder="DD/MM/YYYY"
+                                class="date-input w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
                     </div>
-                    <div>
-                        <label for="id_savings_micr_code" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">MICR</label>
-                        <input type="text" id="id_savings_micr_code" name="savings_micr_code" value="{{ form.savings_micr_code.value|default:form.micr_code.value|default:'' }}" placeholder="600002001" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                    </div>
-                </div>
-                <!-- Row 2: BANK | ACCOUNT NO -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="id_savings_bank_name" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Bank</label>
-                        <input type="text" id="id_savings_bank_name" name="savings_bank_name" value="{{ form.savings_bank_name.value|default:form.bank_name.value|default:'' }}" placeholder="State Bank of India" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                    </div>
-                    <div>
-                        <label for="id_savings_account_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Account No</label>
-                        <input type="text" id="id_savings_account_no" name="savings_account_no" value="{{ form.savings_account_no.value|default:form.account_no.value|default:'' }}" placeholder="123456789012" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+
+
+                    <!-- Row 2: EMAIL | PLACE OF BIRTH | ALTERNATE NO -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_email"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Email
+                                <span class="text-red-500">*</span></label>
+                            <input type="email" id="id_email" name="email" value="{{ form.email.value|default:'' }}"
+                                required placeholder="maniKandan@mail.com"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_place_of_birth"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Place
+                                of Birth</label>
+                            <input type="text" id="id_place_of_birth" name="place_of_birth"
+                                value="{{ form.place_of_birth.value|default:'' }}" placeholder="Chennai"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_alternate_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Alternate
+                                No</label>
+                            <input type="text" id="id_alternate_no" name="alternate_no"
+                                value="{{ form.alternate_no.value|default:'' }}" placeholder="+1 987 654 3210"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- CURRENT ACCOUNT SUB-SECTION -->
-            <div class="p-4 bg-white rounded-xl border border-black/10 space-y-4 shadow-2xs">
-                <div class="flex items-center justify-between border-b border-black/5 pb-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[16px] text-blue-600">domain</span>
-                        CURRENT ACCOUNT
-                    </span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase">Business</span>
-                </div>
-                <!-- Row 1: TYPE | IFSC | MICR -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Type</label>
-                        <input type="text" readonly value="Current Account" class="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm font-medium cursor-not-allowed">
+            <!-- KYC DOCUMENT DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">badge</span>
+                        <span>KYC DOCUMENT DETAILS</span>
                     </div>
-                    <div>
-                        <label for="id_current_ifsc_code" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">IFSC</label>
-                        <input type="text" id="id_current_ifsc_code" name="current_ifsc_code" value="{{ form.current_ifsc_code.value|default:'' }}" placeholder="HDFC0001234" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
-                    </div>
-                    <div>
-                        <label for="id_current_micr_code" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">MICR</label>
-                        <input type="text" id="id_current_micr_code" name="current_micr_code" value="{{ form.current_micr_code.value|default:'' }}" placeholder="600240002" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                    </div>
-                </div>
-                <!-- Row 2: BANK | ACCOUNT NO -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="id_current_bank_name" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Bank</label>
-                        <input type="text" id="id_current_bank_name" name="current_bank_name" value="{{ form.current_bank_name.value|default:'' }}" placeholder="HDFC Bank" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                    </div>
-                    <div>
-                        <label for="id_current_account_no" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Account No</label>
-                        <input type="text" id="id_current_account_no" name="current_account_no" value="{{ form.current_account_no.value|default:'' }}" placeholder="987654321098" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
+
+                <div class="accordion-content hidden space-y-4 pt-2 border-t border-black/5">
+                    <!-- PAN | AADHAR | GST NO | UIN -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="id_pan_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">PAN</label>
+                            <input type="text" id="id_pan_no" name="pan_no" value="{{ form.pan_no.value|default:'' }}"
+                                placeholder="ABCDE1234F"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_aadhar_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Aadhar</label>
+                            <input type="text" id="id_aadhar_no" name="aadhar_no"
+                                value="{{ form.aadhar_no.value|default:'' }}" placeholder="1234 5678 9012"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_gst_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">GST
+                                No</label>
+                            <input type="text" id="id_gst_no" name="gst_no" value="{{ form.gst_no.value|default:'' }}"
+                                placeholder="22AAAAA0000A1Z5"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_uin"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">UIN</label>
+                            <input type="text" id="id_uin" name="uin" value="{{ form.uin.value|default:'' }}"
+                                placeholder="UIN123456789"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- KYC CID DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">id_card</span>
+                        <span>KYC CID DETAILS</span>
+                    </div>
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
 
-        <!-- NOMINEE DETAILS SECTION -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">family_history</span>
-                NOMINEE DETAILS
-            </h3>
+                <div class="accordion-content hidden space-y-4 pt-2 border-t border-black/5">
+                    <!-- Row 1: CKYC NO | UIIC CID | TNIA CID -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_ckyc_no"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">CKYC
+                                No</label>
+                            <input type="text" id="id_ckyc_no" name="ckyc_no"
+                                value="{{ form.ckyc_no.value|default:'' }}" placeholder="CKYC12345678"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_uiic_cid"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">UIIC
+                                CID</label>
+                            <input type="text" id="id_uiic_cid" name="uiic_cid"
+                                value="{{ form.uiic_cid.value|default:'' }}" placeholder="UIIC987654"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_tnia_cid"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">TNIA
+                                CID</label>
+                            <input type="text" id="id_tnia_cid" name="tnia_cid"
+                                value="{{ form.tnia_cid.value|default:'' }}" placeholder="TNIA456789"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                    </div>
 
-            <!-- Row 1: NAME | RELATIONSHIP | DOB | PAN -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label for="id_nominee_name" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Name</label>
-                    <input type="text" id="id_nominee_name" name="nominee_name" value="{{ form.nominee_name.value|default:'' }}" placeholder="Nominee Full Name" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_nominee_relationship" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Relationship</label>
-                    <input type="text" id="id_nominee_relationship" name="nominee_relationship" value="{{ form.nominee_relationship.value|default:'' }}" placeholder="Spouse / Child / Parent" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_nominee_dob" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">DOB</label>
-                    <input type="date" id="id_nominee_dob" name="nominee_dob" value="{{ form.nominee_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_nominee_pan" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">PAN</label>
-                    <input type="text" id="id_nominee_pan" name="nominee_pan" value="{{ form.nominee_pan.value|default:'' }}" placeholder="XYZPD1234F" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                    <!-- Row 2: BSE UCC | NSE UCC | LIC CID -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_bse_ucc"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">BSE
+                                UCC</label>
+                            <input type="text" id="id_bse_ucc" name="bse_ucc"
+                                value="{{ form.bse_ucc.value|default:'' }}" placeholder="BSE123456"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_nse_ucc"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">NSE
+                                UCC</label>
+                            <input type="text" id="id_nse_ucc" name="nse_ucc"
+                                value="{{ form.nse_ucc.value|default:'' }}" placeholder="NSE654321"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                        <div>
+                            <label for="id_lic_cid"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">LIC
+                                CID</label>
+                            <input type="text" id="id_lic_cid" name="lic_cid"
+                                value="{{ form.lic_cid.value|default:'' }}" placeholder="LIC789123"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Row 2: AADHAAR | MOBILE | EMAIL -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="id_nominee_aadhar" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Aadhaar</label>
-                    <input type="text" id="id_nominee_aadhar" name="nominee_aadhar" value="{{ form.nominee_aadhar.value|default:'' }}" placeholder="9876 5432 1098" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_nominee_mobile" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Mobile</label>
-                    <input type="text" id="id_nominee_mobile" name="nominee_mobile" value="{{ form.nominee_mobile.value|default:'' }}" placeholder="+1 987 654 3210" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
-                </div>
-                <div>
-                    <label for="id_nominee_email" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Email</label>
-                    <input type="email" id="id_nominee_email" name="nominee_email" value="{{ form.nominee_email.value|default:'' }}" placeholder="nominee@example.com" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+            <!-- ADDRESS DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">location_on</span>
+                        <span>ADDRESS DETAILS</span>
+                    </div>
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
+
+                <div class="accordion-content hidden space-y-4 pt-2 border-t border-black/5">
+                    <!-- Row 1: PIN CODE | POST OFFICE | VILLAGE | DOOR NO/ STREET -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="id_pincode"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Pin
+                                Code</label>
+                            <input type="text" id="id_pincode" name="pincode"
+                                value="{{ form.pincode.value|default:'' }}" placeholder="600001"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_post_office"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Post
+                                Office</label>
+                            <input type="text" id="id_post_office" name="post_office"
+                                value="{{ form.post_office.value|default:'' }}" placeholder="Central H.O"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_village"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Village</label>
+                            <input type="text" id="id_village" name="village"
+                                value="{{ form.village.value|default:'' }}" placeholder="Town/Village Name"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_street_address"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Door
+                                No / Street</label>
+                            <input type="text" id="id_street_address" name="street_address"
+                                value="{{ form.street_address.value|default:'' }}" placeholder="123 Main Street, Apt 4B"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: TALUK | DISTRICT | STATE -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_taluk"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Taluk</label>
+                            <input type="text" id="id_taluk" name="taluk" value="{{ form.taluk.value|default:'' }}"
+                                placeholder="Taluk Name"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_district"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">District</label>
+                            <input type="text" id="id_district" name="district"
+                                value="{{ form.district.value|default:'' }}" placeholder="District Name"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_state"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">State</label>
+                            <input type="text" id="id_state" name="state" value="{{ form.state.value|default:'' }}"
+                                placeholder="State Name"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- FAMILY DETAILS SECTION (TABLE STRUCTURE) -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">diversity_3</span>
-                FAMILY DETAILS
-            </h3>
+            <!-- BANK DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-6 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">account_balance</span>
+                        <span>BANK DETAILS</span>
+                    </div>
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
 
-            <div class="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-100/80 text-on-surface-variant uppercase tracking-wider font-bold border-b border-black/10 text-[11px]">
-                            <th class="py-3 px-3">Relationship</th>
-                            <th class="py-3 px-3">Name</th>
-                            <th class="py-3 px-3 min-w-[140px]">DOB</th>
-                            <th class="py-3 px-3">Mobile</th>
-                            <th class="py-3 px-3">PAN</th>
-                            <th class="py-3 px-3">Aadhaar</th>
-                            <th class="py-3 px-3">Height / Weight</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-black/5 font-medium text-on-surface">
-                        <!-- FATHER ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-semibold text-indigo-700 bg-indigo-50/30">Father</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_father_name" name="father_name" value="{{ form.father_name.value|default:'' }}" placeholder="Father's Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="date" id="id_father_dob" name="father_dob" value="{{ form.father_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_father_mobile" name="father_mobile" value="{{ form.father_mobile.value|default:'' }}" placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_father_pan" name="father_pan" value="{{ form.father_pan.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_father_aadhar" name="father_aadhar" value="{{ form.father_aadhar.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_father_height_weight" name="father_height_weight" value="{{ form.father_height_weight.value|default:'' }}" placeholder="175 cm / 70 kg" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
+                <div class="accordion-content hidden space-y-6 pt-2 border-t border-black/5">
+                    <!-- SAVING ACCOUNT SUB-SECTION -->
+                    <div class="p-4 bg-white rounded-xl border border-black/10 space-y-4 shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-black/5 pb-2">
+                            <span
+                                class="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-600">savings</span>
+                                SAVING ACCOUNT
+                            </span>
+                            <span
+                                class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold uppercase">Primary</span>
+                        </div>
+                        <!-- Row 1: TYPE | IFSC | MICR -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="id_bank_account_type"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Type</label>
+                                <input type="text" readonly name="bank_account_type" value="Savings Account"
+                                    class="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm font-medium cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="id_savings_ifsc_code"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">IFSC</label>
+                                <input type="text" id="id_savings_ifsc_code" name="savings_ifsc_code"
+                                    value="{{ form.savings_ifsc_code.value|default:form.ifsc_code.value|default:'' }}"
+                                    placeholder="SBIN0001234"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                            </div>
+                            <div>
+                                <label for="id_savings_micr_code"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">MICR</label>
+                                <input type="text" id="id_savings_micr_code" name="savings_micr_code"
+                                    value="{{ form.savings_micr_code.value|default:form.micr_code.value|default:'' }}"
+                                    placeholder="600002001"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                        </div>
+                        <!-- Row 2: BANK | ACCOUNT NO -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="id_savings_bank_name"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Bank</label>
+                                <input type="text" id="id_savings_bank_name" name="savings_bank_name"
+                                    value="{{ form.savings_bank_name.value|default:form.bank_name.value|default:'' }}"
+                                    placeholder="State Bank of India"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                            <div>
+                                <label for="id_savings_account_no"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Account
+                                    No</label>
+                                <input type="text" id="id_savings_account_no" name="savings_account_no"
+                                    value="{{ form.savings_account_no.value|default:form.account_no.value|default:'' }}"
+                                    placeholder="123456789012"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- MOTHER ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-semibold text-rose-700 bg-rose-50/30">Mother</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_mother_name" name="mother_name" value="{{ form.mother_name.value|default:'' }}" placeholder="Mother's Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="date" id="id_mother_dob" name="mother_dob" value="{{ form.mother_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_mother_mobile" name="mother_mobile" value="{{ form.mother_mobile.value|default:'' }}" placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_mother_pan" name="mother_pan" value="{{ form.mother_pan.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_mother_aadhar" name="mother_aadhar" value="{{ form.mother_aadhar.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_mother_height_weight" name="mother_height_weight" value="{{ form.mother_height_weight.value|default:'' }}" placeholder="160 cm / 60 kg" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- SPOUSE ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-semibold text-purple-700 bg-purple-50/30">Spouse</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_spouse_name" name="spouse_name" value="{{ form.spouse_name.value|default:'' }}" placeholder="Spouse's Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="date" id="id_spouse_dob" name="spouse_dob" value="{{ form.spouse_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_spouse_mobile" name="spouse_mobile" value="{{ form.spouse_mobile.value|default:'' }}" placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_spouse_pan" name="spouse_pan" value="{{ form.spouse_pan.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_spouse_aadhar" name="spouse_aadhar" value="{{ form.spouse_aadhar.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_spouse_height_weight" name="spouse_height_weight" value="{{ form.spouse_height_weight.value|default:'' }}" placeholder="165 cm / 58 kg" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- DAUGHTER ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-semibold text-pink-700 bg-pink-50/30">Daughter</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_daughter_name" name="daughter_name" value="{{ form.daughter_name.value|default:'' }}" placeholder="Daughter's Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="date" id="id_daughter_dob" name="daughter_dob" value="{{ form.daughter_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_daughter_mobile" name="daughter_mobile" value="{{ form.daughter_mobile.value|default:'' }}" placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_daughter_pan" name="daughter_pan" value="{{ form.daughter_pan.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_daughter_aadhar" name="daughter_aadhar" value="{{ form.daughter_aadhar.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_daughter_height_weight" name="daughter_height_weight" value="{{ form.daughter_height_weight.value|default:'' }}" placeholder="140 cm / 35 kg" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- SON ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-semibold text-cyan-700 bg-cyan-50/30">Son</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_son_name" name="son_name" value="{{ form.son_name.value|default:'' }}" placeholder="Son's Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="date" id="id_son_dob" name="son_dob" value="{{ form.son_dob.value|default:'' }}" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_son_mobile" name="son_mobile" value="{{ form.son_mobile.value|default:'' }}" placeholder="+1 234 567 8900" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_son_pan" name="son_pan" value="{{ form.son_pan.value|default:'' }}" placeholder="ABCDE1234F" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_son_aadhar" name="son_aadhar" value="{{ form.son_aadhar.value|default:'' }}" placeholder="1234 5678 9012" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_son_height_weight" name="son_height_weight" value="{{ form.son_height_weight.value|default:'' }}" placeholder="150 cm / 42 kg" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-        <!-- MANDATE DETAILS SECTION (TABLE STRUCTURE) -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">verified_user</span>
-                MANDATE DETAILS
-            </h3>
-
-            <div class="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-100/80 text-on-surface-variant uppercase tracking-wider font-bold border-b border-black/10 text-[11px]">
-                            <th class="py-3 px-3">Platform</th>
-                            <th class="py-3 px-3">Payer</th>
-                            <th class="py-3 px-3">Mandate ID</th>
-                            <th class="py-3 px-3">UMRN No</th>
-                            <th class="py-3 px-3">Limit</th>
-                            <th class="py-3 px-3">Bank</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-black/5 font-medium text-on-surface">
-                        <!-- NSE MANDATE ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-bold text-blue-700 bg-blue-50/40">NSE</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_nse_mandate_payer" name="nse_mandate_payer" value="{{ form.nse_mandate_payer.value|default:'' }}" placeholder="Payer Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_nse_mandate_id" name="nse_mandate_id" value="{{ form.nse_mandate_id.value|default:'' }}" placeholder="Mandate ID" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_nse_mandate_umrn" name="nse_mandate_umrn" value="{{ form.nse_mandate_umrn.value|default:'' }}" placeholder="UMRN No" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_nse_mandate_limit" name="nse_mandate_limit" value="{{ form.nse_mandate_limit.value|default:'' }}" placeholder="₹ 1,00,000" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_nse_mandate_bank" name="nse_mandate_bank" value="{{ form.nse_mandate_bank.value|default:'' }}" placeholder="Bank Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- BSE MANDATE ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-bold text-amber-700 bg-amber-50/40">BSE</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_bse_mandate_payer" name="bse_mandate_payer" value="{{ form.bse_mandate_payer.value|default:'' }}" placeholder="Payer Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_bse_mandate_id" name="bse_mandate_id" value="{{ form.bse_mandate_id.value|default:'' }}" placeholder="Mandate ID" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_bse_mandate_umrn" name="bse_mandate_umrn" value="{{ form.bse_mandate_umrn.value|default:'' }}" placeholder="UMRN No" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_bse_mandate_limit" name="bse_mandate_limit" value="{{ form.bse_mandate_limit.value|default:'' }}" placeholder="₹ 1,00,000" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_bse_mandate_bank" name="bse_mandate_bank" value="{{ form.bse_mandate_bank.value|default:'' }}" placeholder="Bank Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- CAMS MANDATE ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-bold text-emerald-700 bg-emerald-50/40">CAMS</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_cams_mandate_payer" name="cams_mandate_payer" value="{{ form.cams_mandate_payer.value|default:'' }}" placeholder="Payer Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_cams_mandate_id" name="cams_mandate_id" value="{{ form.cams_mandate_id.value|default:'' }}" placeholder="Mandate ID" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_cams_mandate_umrn" name="cams_mandate_umrn" value="{{ form.cams_mandate_umrn.value|default:'' }}" placeholder="UMRN No" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_cams_mandate_limit" name="cams_mandate_limit" value="{{ form.cams_mandate_limit.value|default:'' }}" placeholder="₹ 1,00,000" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_cams_mandate_bank" name="cams_mandate_bank" value="{{ form.cams_mandate_bank.value|default:'' }}" placeholder="Bank Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-
-                        <!-- KFIN MANDATE ROW -->
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-2.5 px-3 font-bold text-purple-700 bg-purple-50/40">KFIN</td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_kfin_mandate_payer" name="kfin_mandate_payer" value="{{ form.kfin_mandate_payer.value|default:'' }}" placeholder="Payer Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_kfin_mandate_id" name="kfin_mandate_id" value="{{ form.kfin_mandate_id.value|default:'' }}" placeholder="Mandate ID" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_kfin_mandate_umrn" name="kfin_mandate_umrn" value="{{ form.kfin_mandate_umrn.value|default:'' }}" placeholder="UMRN No" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_kfin_mandate_limit" name="kfin_mandate_limit" value="{{ form.kfin_mandate_limit.value|default:'' }}" placeholder="₹ 1,00,000" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                            <td class="py-2.5 px-2">
-                                <input type="text" id="id_kfin_mandate_bank" name="kfin_mandate_bank" value="{{ form.kfin_mandate_bank.value|default:'' }}" placeholder="Bank Name" class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <!-- CURRENT ACCOUNT SUB-SECTION -->
+                    <div class="p-4 bg-white rounded-xl border border-black/10 space-y-4 shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-black/5 pb-2">
+                            <span
+                                class="text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-blue-600">domain</span>
+                                CURRENT ACCOUNT
+                            </span>
+                            <span
+                                class="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase">Business</span>
+                        </div>
+                        <!-- Row 1: TYPE | IFSC | MICR -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Type</label>
+                                <input type="text" readonly value="Current Account"
+                                    class="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm font-medium cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="id_current_ifsc_code"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">IFSC</label>
+                                <input type="text" id="id_current_ifsc_code" name="current_ifsc_code"
+                                    value="{{ form.current_ifsc_code.value|default:'' }}" placeholder="HDFC0001234"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                            </div>
+                            <div>
+                                <label for="id_current_micr_code"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">MICR</label>
+                                <input type="text" id="id_current_micr_code" name="current_micr_code"
+                                    value="{{ form.current_micr_code.value|default:'' }}" placeholder="600240002"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                        </div>
+                        <!-- Row 2: BANK | ACCOUNT NO -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="id_current_bank_name"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Bank</label>
+                                <input type="text" id="id_current_bank_name" name="current_bank_name"
+                                    value="{{ form.current_bank_name.value|default:'' }}" placeholder="HDFC Bank"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                            <div>
+                                <label for="id_current_account_no"
+                                    class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Account
+                                    No</label>
+                                <input type="text" id="id_current_account_no" name="current_account_no"
+                                    value="{{ form.current_account_no.value|default:'' }}" placeholder="987654321098"
+                                    class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <!-- ADDITIONAL SETTINGS -->
-        <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4">
-
-            <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-2">
 
 
+            <!-- NOMINEE DETAILS SECTION -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">family_history</span>
+                        <span>NOMINEE DETAILS</span>
+                    </div>
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
 
+                <div class="accordion-content hidden space-y-4 pt-2 border-t border-black/5">
+                    <!-- Row 1: NAME | RELATIONSHIP | DOB | PAN -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="id_nominee_name"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Name</label>
+                            <input type="text" id="id_nominee_name" name="nominee_name"
+                                value="{{ form.nominee_name.value|default:'' }}" placeholder="Nominee Full Name"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_nominee_relationship"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Relationship</label>
+                            <input type="text" id="id_nominee_relationship" name="nominee_relationship"
+                                value="{{ form.nominee_relationship.value|default:'' }}"
+                                placeholder="Spouse / Child / Parent"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_nominee_dob"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">DOB</label>
+                            <input type="text" id="id_nominee_dob" name="nominee_dob"
+                                value="{{ form.nominee_dob.value|date:'d/m/Y'|default:'' }}" placeholder="DD/MM/YYYY"
+                                class="date-input w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_nominee_pan"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">PAN</label>
+                            <input type="text" id="id_nominee_pan" name="nominee_pan"
+                                value="{{ form.nominee_pan.value|default:'' }}" placeholder="XYZPD1234F"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase">
+                        </div>
+                    </div>
 
-
-
-                <span class="material-symbols-outlined text-[18px]">label</span>
-                CLASSIFICATION
-            </h3>
-            <div class="max-w-md">
-                <label for="id_tag" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Tag</label>
-                <input type="text" id="id_tag" name="tag" value="{{ form.tag.value|default:'Customer' }}" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                    <!-- Row 2: AADHAAR | MOBILE | EMAIL -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="id_nominee_aadhar"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Aadhaar</label>
+                            <input type="text" id="id_nominee_aadhar" name="nominee_aadhar"
+                                value="{{ form.nominee_aadhar.value|default:'' }}" placeholder="9876 5432 1098"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_nominee_mobile"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Mobile</label>
+                            <input type="text" id="id_nominee_mobile" name="nominee_mobile"
+                                value="{{ form.nominee_mobile.value|default:'' }}" placeholder="+1 987 654 3210"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                        <div>
+                            <label for="id_nominee_email"
+                                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Email</label>
+                            <input type="email" id="id_nominee_email" name="nominee_email"
+                                value="{{ form.nominee_email.value|default:'' }}" placeholder="nominee@example.com"
+                                class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="flex justify-end gap-3 pt-4 border-t border-black/5">
-            <a href="{% url 'contacts:contact_list' %}" class="px-5 py-2.5 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-sm transition-all">Cancel</a>
-            <button type="submit" class="primary-gradient text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-md hover:opacity-95 transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">check</span>
-                Save Contact
-            </button>
-        </div>
-    </form>
+            <!-- FAMILY DETAILS SECTION (TABLE STRUCTURE) -->
+            <div class="bg-slate-50/50 p-5 rounded-2xl border border-black/5 space-y-4 accordion-section">
+                <h3 onclick="toggleAccordion(this)"
+                    class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center justify-between cursor-pointer select-none py-1 hover:opacity-80 transition-opacity">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">diversity_3</span>
+                        <span>FAMILY DETAILS</span>
+                    </div>
+                    <span
+                        class="material-symbols-outlined accordion-icon transition-transform duration-200 text-on-surface-variant text-[20px]">expand_more</span>
+                </h3>
+
+                <div class="accordion-content hidden space-y-4 pt-2 border-t border-black/5">
+                    <div class="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr
+                                    class="bg-slate-100/80 text-on-surface-variant uppercase tracking-wider font-bold border-b border-black/10 text-[11px]">
+                                    <th class="py-3 px-3">Relationship</th>
+                                    <th class="py-3 px-3">Name</th>
+                                    <th class="py-3 px-3 min-w-[140px]">DOB</th>
+                                    <th class="py-3 px-3">Mobile</th>
+                                    <th class="py-3 px-3">PAN</th>
+                                    <th class="py-3 px-3">Aadhaar</th>
+                                    <th class="py-3 px-3">Height / Weight</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-black/5 font-medium text-on-surface">
+                                <!-- FATHER ROW -->
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-2.5 px-3 font-semibold text-indigo-700 bg-indigo-50/30">Father</td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_name" name="father_name"
+                                            value="{{ form.father_name.value|default:'' }}" placeholder="Father's Name"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_dob" name="father_dob"
+                                            value="{{ form.father_dob.value|date:'d/m/Y'|default:'' }}"
+                                            placeholder="DD/MM/YYYY"
+                                            class="date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_mobile" name="father_mobile"
+                                            value="{{ form.father_mobile.value|default:'' }}"
+                                            placeholder="+1 234 567 8900"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_pan" name="father_pan"
+                                            value="{{ form.father_pan.value|default:'' }}" placeholder="ABCDE1234F"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_aadhar" name="father_aadhar"
+                                            value="{{ form.father_aadhar.value|default:'' }}"
+                                            placeholder="1234 5678 9012"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_father_height_weight" name="father_height_weight"
+                                            value="{{ form.father_height_weight.value|default:'' }}"
+                                            placeholder="175 cm / 70 kg"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                </tr>
+
+                                <!-- MOTHER ROW -->
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-2.5 px-3 font-semibold text-rose-700 bg-rose-50/30">Mother</td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_name" name="mother_name"
+                                            value="{{ form.mother_name.value|default:'' }}" placeholder="Mother's Name"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_dob" name="mother_dob"
+                                            value="{{ form.mother_dob.value|date:'d/m/Y'|default:'' }}"
+                                            placeholder="DD/MM/YYYY"
+                                            class="date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_mobile" name="mother_mobile"
+                                            value="{{ form.mother_mobile.value|default:'' }}"
+                                            placeholder="+1 234 567 8900"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_pan" name="mother_pan"
+                                            value="{{ form.mother_pan.value|default:'' }}" placeholder="ABCDE1234F"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_aadhar" name="mother_aadhar"
+                                            value="{{ form.mother_aadhar.value|default:'' }}"
+                                            placeholder="1234 5678 9012"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_mother_height_weight" name="mother_height_weight"
+                                            value="{{ form.mother_height_weight.value|default:'' }}"
+                                            placeholder="160 cm / 60 kg"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                </tr>
+
+                                <!-- SPOUSE ROW -->
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-2.5 px-3 font-semibold text-purple-700 bg-purple-50/30">Spouse</td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_name" name="spouse_name"
+                                            value="{{ form.spouse_name.value|default:'' }}" placeholder="Spouse's Name"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_dob" name="spouse_dob"
+                                            value="{{ form.spouse_dob.value|date:'d/m/Y'|default:'' }}"
+                                            placeholder="DD/MM/YYYY"
+                                            class="date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_mobile" name="spouse_mobile"
+                                            value="{{ form.spouse_mobile.value|default:'' }}"
+                                            placeholder="+1 234 567 8900"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_pan" name="spouse_pan"
+                                            value="{{ form.spouse_pan.value|default:'' }}" placeholder="ABCDE1234F"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_aadhar" name="spouse_aadhar"
+                                            value="{{ form.spouse_aadhar.value|default:'' }}"
+                                            placeholder="1234 5678 9012"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_spouse_height_weight" name="spouse_height_weight"
+                                            value="{{ form.spouse_height_weight.value|default:'' }}"
+                                            placeholder="165 cm / 58 kg"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                </tr>
+
+                                <!-- DAUGHTER ROW -->
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-2.5 px-3 font-semibold text-pink-700 bg-pink-50/30">Daughter</td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_name" name="daughter_name"
+                                            value="{{ form.daughter_name.value|default:'' }}"
+                                            placeholder="Daughter's Name"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_dob" name="daughter_dob"
+                                            value="{{ form.daughter_dob.value|date:'d/m/Y'|default:'' }}"
+                                            placeholder="DD/MM/YYYY"
+                                            class="date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_mobile" name="daughter_mobile"
+                                            value="{{ form.daughter_mobile.value|default:'' }}"
+                                            placeholder="+1 234 567 8900"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_pan" name="daughter_pan"
+                                            value="{{ form.daughter_pan.value|default:'' }}" placeholder="ABCDE1234F"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_aadhar" name="daughter_aadhar"
+                                            value="{{ form.daughter_aadhar.value|default:'' }}"
+                                            placeholder="1234 5678 9012"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_daughter_height_weight" name="daughter_height_weight"
+                                            value="{{ form.daughter_height_weight.value|default:'' }}"
+                                            placeholder="140 cm / 35 kg"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                </tr>
+
+                                <!-- SON ROW -->
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-2.5 px-3 font-semibold text-cyan-700 bg-cyan-50/30">Son</td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_name" name="son_name"
+                                            value="{{ form.son_name.value|default:'' }}" placeholder="Son's Name"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_dob" name="son_dob"
+                                            value="{{ form.son_dob.value|date:'d/m/Y'|default:'' }}"
+                                            placeholder="DD/MM/YYYY"
+                                            class="date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_mobile" name="son_mobile"
+                                            value="{{ form.son_mobile.value|default:'' }}" placeholder="+1 234 567 8900"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_pan" name="son_pan"
+                                            value="{{ form.son_pan.value|default:'' }}" placeholder="ABCDE1234F"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_aadhar" name="son_aadhar"
+                                            value="{{ form.son_aadhar.value|default:'' }}" placeholder="1234 5678 9012"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                    <td class="py-2.5 px-2">
+                                        <input type="text" id="id_son_height_weight" name="son_height_weight"
+                                            value="{{ form.son_height_weight.value|default:'' }}"
+                                            placeholder="150 cm / 42 kg"
+                                            class="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+                <a href="{% url 'contacts:contact_list' %}"
+                    class="px-5 py-2.5 rounded-xl border border-black/10 text-on-surface-variant hover:bg-surface-variant font-medium text-sm transition-all">Cancel</a>
+                <button type="submit"
+                    class="primary-gradient text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-md hover:opacity-95 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">check</span>
+                    Save Contact
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    function formatToIndianDate(val) {
+        if (!val) return '';
+        val = val.trim();
+        // YYYY-MM-DD -> DD/MM/YYYY
+        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+            const parts = val.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        // YYYY/MM/DD -> DD/MM/YYYY
+        if (/^\d{4}\/\d{2}\/\d{2}$/.test(val)) {
+            const parts = val.split('/');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        // DD-MM-YYYY -> DD/MM/YYYY
+        if (/^\d{2}-\d{2}-\d{4}$/.test(val)) {
+            return val.replace(/-/g, '/');
+        }
+        // 8 raw digits like 15081995 -> 15/08/1995
+        if (/^\d{8}$/.test(val)) {
+            return `${val.substring(0, 2)}/${val.substring(2, 4)}/${val.substring(4, 8)}`;
+        }
+        return val;
+    }
+
+    function toggleAccordion(header) {
+        const section = header.closest('.accordion-section');
+        if (!section) return;
+        const content = section.querySelector('.accordion-content');
+        const icon = section.querySelector('.accordion-icon');
+        if (content) {
+            const isHidden = content.classList.contains('hidden');
+            if (isHidden) {
+                content.classList.remove('hidden');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+        updateToggleAllButtonText();
+    }
+
+    function toggleAllAccordions() {
+        const sections = document.querySelectorAll('.accordion-section');
+        const toggleAllText = document.getElementById('toggle-all-text');
+        const shouldExpand = toggleAllText ? toggleAllText.innerText.includes('Expand') : true;
+
+        sections.forEach(section => {
+            const content = section.querySelector('.accordion-content');
+            const icon = section.querySelector('.accordion-icon');
+            if (content) {
+                if (shouldExpand) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        updateToggleAllButtonText();
+    }
+
+    function updateToggleAllButtonText() {
+        const toggleAllText = document.getElementById('toggle-all-text');
+        if (!toggleAllText) return;
+        const hiddenContents = document.querySelectorAll('.accordion-content.hidden');
+        if (hiddenContents.length === 0) {
+            toggleAllText.innerText = 'Collapse All';
+        } else {
+            toggleAllText.innerText = 'Expand All';
+        }
+    }
+
+    function expandInvalidSections() {
+        const form = document.querySelector('form');
+        if (!form) return;
+        const inputs = form.querySelectorAll('input, select, textarea');
+        let firstInvalidField = null;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                const section = input.closest('.accordion-section');
+                if (section) {
+                    const content = section.querySelector('.accordion-content');
+                    const icon = section.querySelector('.accordion-icon');
+                    if (content && content.classList.contains('hidden')) {
+                        content.classList.remove('hidden');
+                        if (icon) icon.classList.add('rotate-180');
+                    }
+                }
+                if (!firstInvalidField) {
+                    firstInvalidField = input;
+                }
+            }
+        });
+
+        updateToggleAllButtonText();
+
+        if (firstInvalidField) {
+            setTimeout(() => {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 10);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+
+        // Initialize Indian Date Format (DD/MM/YYYY) for all date inputs
+        const dateInputs = document.querySelectorAll('.date-input');
+        dateInputs.forEach(input => {
+            if (input.value) {
+                input.value = formatToIndianDate(input.value);
+            }
+            input.addEventListener('blur', function () {
+                if (this.value) {
+                    this.value = formatToIndianDate(this.value);
+                }
+            });
+        });
+
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.date-input', {
+                dateFormat: 'd/m/Y',
+                allowInput: true,
+                placeholder: 'DD/MM/YYYY'
+            });
+        }
+
+        if (!form) return;
+
+        // 1. Intercept click & mousedown on Submit Button BEFORE native browser validation occurs
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.addEventListener('mousedown', expandInvalidSections);
+            submitBtn.addEventListener('click', expandInvalidSections);
+        }
+
+        // 2. Intercept Enter keypress in form inputs
+        form.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                expandInvalidSections();
+            }
+        });
+
+        // 3. Catch invalid events in the capture phase at the window level
+        window.addEventListener('invalid', function (e) {
+            const input = e.target;
+            const section = input.closest('.accordion-section');
+            if (section) {
+                const content = section.querySelector('.accordion-content');
+                const icon = section.querySelector('.accordion-icon');
+                if (content && content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                    updateToggleAllButtonText();
+                }
+            }
+        }, true);
+
+        // 4. Also check on form submit
+        form.addEventListener('submit', function (e) {
+            // Ensure all dates are formatted to DD/MM/YYYY before submission
+            dateInputs.forEach(input => {
+                if (input.value) {
+                    input.value = formatToIndianDate(input.value);
+                }
+            });
+            expandInvalidSections();
+        });
+
+        // 5. Server-side validation check (Django errors)
+        const hasServerErrors = document.querySelector('.bg-red-50');
+        if (hasServerErrors) {
+            expandInvalidSections();
+        }
+    });
+</script>
 {% endblock %}
-
