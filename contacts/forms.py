@@ -1,5 +1,5 @@
 from django import forms
-from .models import Contact
+from .models import Contact, BankAccount, FamilyMember, Nominee, Mandate
 
 INDIAN_DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d-%m-%Y', '%Y-%m-%d']
 
@@ -116,8 +116,276 @@ class ContactForm(forms.ModelForm):
             'spouse_name', 'spouse_dob', 'spouse_mobile', 'spouse_pan', 'spouse_aadhar', 'spouse_height_weight',
             'daughter_name', 'daughter_dob', 'daughter_mobile', 'daughter_pan', 'daughter_aadhar', 'daughter_height_weight',
             'son_name', 'son_dob', 'son_mobile', 'son_pan', 'son_aadhar', 'son_height_weight',
-           
+            'pan_doc', 'aadhar_doc',
         ]
+
+
+class BankAccountForm(forms.ModelForm):
+    account_type = forms.ChoiceField(
+        required=False,
+        choices=BankAccount.ACCOUNT_TYPE_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    bank_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Bank Name',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    account_no = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Account No',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    ifsc_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'IFSC Code',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase'
+        })
+    )
+    micr_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'MICR Code',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+
+    class Meta:
+        model = BankAccount
+        fields = ['account_type', 'bank_name', 'account_no', 'ifsc_code', 'micr_code']
+
+BankAccountFormSet = forms.inlineformset_factory(
+    Contact,
+    BankAccount,
+    form=BankAccountForm,
+    extra=1,
+    can_delete=True
+)
+
+
+class FamilyMemberForm(forms.ModelForm):
+    relationship = forms.ChoiceField(
+        required=False,
+        choices=FamilyMember.RELATIONSHIP_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+    name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': "Member's Name",
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+    dob = forms.DateField(
+        required=False,
+        input_formats=INDIAN_DATE_INPUT_FORMATS,
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={
+            'type': 'text',
+            'placeholder': 'DD/MM/YYYY',
+            'class': 'date-input w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+    mobile = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': '+1 234 567 8900',
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+    pan = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'ABCDE1234F',
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet uppercase'
+        })
+    )
+    pan_doc = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'w-full text-[11px] text-on-surface file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+    aadhar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': '1234 5678 9012',
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+    aadhar_doc = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'w-full text-[11px] text-on-surface file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+    height_weight = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': '170 cm / 65 kg',
+            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+        })
+    )
+
+    class Meta:
+        model = FamilyMember
+        fields = ['relationship', 'name', 'dob', 'mobile', 'pan', 'pan_doc', 'aadhar', 'aadhar_doc', 'height_weight']
+
+FamilyMemberFormSet = forms.inlineformset_factory(
+    Contact,
+    FamilyMember,
+    form=FamilyMemberForm,
+    extra=1,
+    can_delete=True
+)
+
+
+class NomineeForm(forms.ModelForm):
+    name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nominee Full Name',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    relationship = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Spouse / Child / Parent',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    dob = forms.DateField(
+        required=False,
+        input_formats=INDIAN_DATE_INPUT_FORMATS,
+        widget=forms.DateInput(format='%d/%m/%Y', attrs={
+            'type': 'text',
+            'placeholder': 'DD/MM/YYYY',
+            'class': 'date-input w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    pan = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'XYZPD1234F',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all uppercase'
+        })
+    )
+    pan_doc = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+    aadhar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': '9876 5432 1098',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    aadhar_doc = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+    mobile = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': '+1 987 654 3210',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'nominee@example.com',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+
+    class Meta:
+        model = Nominee
+        fields = ['name', 'relationship', 'dob', 'pan', 'pan_doc', 'aadhar', 'aadhar_doc', 'mobile', 'email']
+
+
+NomineeFormSet = forms.inlineformset_factory(
+    Contact,
+    Nominee,
+    form=NomineeForm,
+    extra=1,
+    can_delete=True
+)
+
+
+class MandateForm(forms.ModelForm):
+    provider = forms.ChoiceField(
+        required=False,
+        choices=Mandate.PROVIDER_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    bank_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Bank Name',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    mandate_id = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Mandate ID',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    mandate_limit = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'e.g. ₹ 1,00,000',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    payer_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Payer Name',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+    umrn = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'UMRN Number',
+            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+        })
+    )
+
+    class Meta:
+        model = Mandate
+        fields = ['provider', 'bank_name', 'mandate_id', 'mandate_limit', 'payer_name', 'umrn']
+
+MandateFormSet = forms.inlineformset_factory(
+    Contact,
+    Mandate,
+    form=MandateForm,
+    extra=1,
+    can_delete=True
+)
+
+
+
+
 
 
 
