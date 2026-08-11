@@ -114,8 +114,7 @@ class ModelFileExporter:
 
     Usage:
         exporter = ModelFileExporter(
-            fields=['first_name', 'last_name', 'email', 'tag', 'created_at'],
-            header_labels={'first_name': 'First Name', 'last_name': 'Last Name', 'email': 'Email'},
+            model_class=Contact,
             default_filename='contacts'
         )
         return exporter.export_response(queryset, format='csv')
@@ -123,15 +122,32 @@ class ModelFileExporter:
 
     def __init__(
         self,
-        fields: Sequence[str],
+        fields: Optional[Sequence[str]] = None,
         header_labels: Optional[Dict[str, str]] = None,
         default_filename: str = 'export',
         sheet_name: str = 'Sheet1',
+        model_class: Optional[Any] = None,
     ):
-        self.fields = list(fields)
+        self.fields = list(fields) if (fields is not None and fields != '__all__') else fields
         self.header_labels = header_labels or {}
         self.default_filename = default_filename
         self.sheet_name = sheet_name
+        self.model_class = model_class
+
+    def get_fields(self, data: Any = None) -> Sequence[str]:
+        if self.fields is not None and self.fields != '__all__':
+            return self.fields
+        if self.model_class and hasattr(self.model_class, '_meta'):
+            return [f.name for f in self.model_class._meta.fields]
+        if hasattr(data, 'model') and hasattr(data.model, '_meta'):
+            return [f.name for f in data.model._meta.fields]
+        if isinstance(data, Iterable):
+            first = next(iter(data), None)
+            if first and hasattr(first, '_meta'):
+                return [f.name for f in first._meta.fields]
+            elif first and isinstance(first, dict):
+                return list(first.keys())
+        return []
 
     def export_response(
         self,
@@ -141,11 +157,12 @@ class ModelFileExporter:
     ) -> HttpResponse:
         fn = filename or self.default_filename
         fmt = str(format).lower().strip()
+        export_fields = self.get_fields(data)
 
         if fmt in ('xlsx', 'excel'):
             return export_to_excel_response(
                 data=data,
-                fields=self.fields,
+                fields=export_fields,
                 filename=f"{fn}.xlsx" if not fn.endswith('.xlsx') else fn,
                 header_labels=self.header_labels,
                 sheet_name=self.sheet_name,
@@ -153,7 +170,8 @@ class ModelFileExporter:
         else:
             return export_to_csv_response(
                 data=data,
-                fields=self.fields,
+                fields=export_fields,
                 filename=f"{fn}.csv" if not fn.endswith('.csv') else fn,
                 header_labels=self.header_labels,
             )
+

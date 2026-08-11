@@ -16,14 +16,6 @@
         </p>
     </div>
     <div class="flex items-center gap-unit-md">
-        <button
-            class="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 bg-white transition-all text-on-surface-variant shadow-sm">
-            <span class="material-symbols-outlined">notifications</span>
-        </button>
-        <button
-            class="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 bg-white transition-all text-on-surface-variant shadow-sm">
-            <span class="material-symbols-outlined">help_outline</span>
-        </button>
         <button onclick="document.getElementById('import-modal').classList.remove('hidden')"
             class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-sm cursor-pointer">
             <span class="material-symbols-outlined text-[20px]">upload_file</span>
@@ -89,9 +81,9 @@
                 name="q"
                 value="{{ search_query|default:'' }}"
                 class="w-full bg-white border border-black/5 focus:border-electric-violet focus:ring-1 focus:ring-electric-violet/30 rounded-xl py-3 pl-12 pr-10 text-on-surface placeholder:text-outline shadow-sm transition-all"
-                placeholder="Search name, email, tag..." type="text" />
+                placeholder="Search name, email, phone..." type="text" />
             {% if search_query %}
-            <a href="{% url 'contacts:contact_list' %}{% if selected_tag %}?tag={{ selected_tag|urlencode }}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}{% elif selected_date_range %}?created_at_range={{ selected_date_range|urlencode }}{% endif %}"
+            <a href="{% url 'contacts:contact_list' %}{% if selected_date_range %}?created_at_range={{ selected_date_range|urlencode }}{% endif %}"
                title="Clear search"
                class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-variant transition-all">
                 <span class="material-symbols-outlined text-[18px]">close</span>
@@ -104,17 +96,6 @@
             <span>Search</span>
         </button>
     </form>
-    <!-- View Switcher -->
-    <div class="flex p-1 bg-white border border-black/5 rounded-xl shadow-sm">
-        <button
-            class="px-4 py-1.5 rounded-lg bg-surface-variant text-primary flex items-center gap-2 font-medium">
-            <span class="material-symbols-outlined text-[20px]">list</span>
-        </button>
-        <button
-            class="px-4 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">grid_view</span>
-        </button>
-    </div>
     <!-- Filter Dropdown -->
     <div class="relative inline-block text-left">
         <button type="button" id="filter-btn" onclick="toggleFilterMenu(event)"
@@ -141,15 +122,41 @@
                 <input type="hidden" name="q" value="{{ search_query }}">
                 {% endif %}
 
+                {% if available_states %}
                 <div>
-                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Filter by Tag</label>
-                    <select name="tag" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
-                        <option value="">All Tags</option>
-                        {% for tag_item in available_tags %}
-                        <option value="{{ tag_item }}" {% if selected_tag == tag_item %}selected{% endif %}>{{ tag_item }}</option>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">State</label>
+                    <select name="state" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All States</option>
+                        {% for st in available_states %}
+                        <option value="{{ st }}" {% if selected_state == st %}selected{% endif %}>{{ st }}</option>
                         {% endfor %}
                     </select>
                 </div>
+                {% endif %}
+
+                {% if available_districts %}
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">District / City</label>
+                    <select name="district" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Districts</option>
+                        {% for dist in available_districts %}
+                        <option value="{{ dist }}" {% if selected_district == dist %}selected{% endif %}>{{ dist }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% if available_bank_types %}
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Bank Account Type</label>
+                    <select name="bank_account_type" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Account Types</option>
+                        {% for btype in available_bank_types %}
+                        <option value="{{ btype }}" {% if selected_bank_type == btype %}selected{% endif %}>{{ btype }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
 
                 <div>
                     <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Date Added</label>
@@ -175,21 +182,72 @@
             </form>
         </div>
     </div>
-    <div
-        class="flex items-center gap-3 px-unit-md py-3 rounded-xl border border-black/5 bg-white text-on-surface shadow-sm font-medium">
-        <span class="font-label-md">Watch Field</span>
-        <label class="relative inline-flex items-center cursor-pointer">
-            <input class="sr-only peer" type="checkbox" value="" />
-            <div
-                class="w-9 h-5 bg-surface-variant border border-black/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-electric-violet peer-checked:border-electric-violet">
+    <!-- Columns Dropdown -->
+    <div class="relative inline-block text-left">
+        <button type="button" id="columns-btn" onclick="toggleColumnsMenu(event)"
+            class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium cursor-pointer">
+            <span class="material-symbols-outlined text-[20px]">view_column</span>
+            <span class="font-label-md">Columns</span>
+            <span class="material-symbols-outlined text-[18px]">expand_more</span>
+        </button>
+        <div id="columns-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-2xl border border-black/10 z-50 p-4 flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-black/5 pb-2">
+                <span class="font-semibold text-sm text-on-surface flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-electric-violet">view_column</span>
+                    Toggle Columns
+                </span>
+                <button onclick="document.getElementById('columns-menu').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-0.5 rounded-md hover:bg-black/5">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
             </div>
-        </label>
+            <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="name" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('name', this.checked)" />
+                    <span>Name</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="email" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('email', this.checked)" />
+                    <span>Email</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="phone" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('phone', this.checked)" />
+                    <span>Phone</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="dob" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('dob', this.checked)" />
+                    <span>Date of Birth</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="status" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('status', this.checked)" />
+                    <span>Status</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="created_at" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('created_at', this.checked)" />
+                    <span>Date Added</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="pan" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('pan', this.checked)" />
+                    <span>PAN No</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="aadhar" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('aadhar', this.checked)" />
+                    <span>Aadhar No</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="pob" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('pob', this.checked)" />
+                    <span>Place of Birth</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="state" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('state', this.checked)" />
+                    <span>State</span>
+                </label>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-black/5 text-xs">
+                <button type="button" onclick="resetColumns()" class="text-on-surface-variant hover:text-electric-violet underline">Reset Default</button>
+                <button type="button" onclick="selectAllColumns(true)" class="text-electric-violet font-semibold hover:underline">Show All</button>
+            </div>
+        </div>
     </div>
-    <button
-        class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium">
-        <span class="material-symbols-outlined text-[20px]">view_column</span>
-        <span class="font-label-md">Columns</span>
-    </button>
 </section>
 
 {% if active_filters or search_query %}
@@ -203,16 +261,34 @@
     {% if search_query %}
     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-electric-violet/10 text-electric-violet border border-electric-violet/20 font-semibold">
         Search: "{{ search_query }}"
-        <a href="{% url 'contacts:contact_list' %}{% if selected_tag %}?tag={{ selected_tag|urlencode }}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}{% elif selected_date_range %}?created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+        <a href="{% url 'contacts:contact_list' %}?{% if selected_state %}state={{ selected_state|urlencode }}&{% endif %}{% if selected_district %}district={{ selected_district|urlencode }}&{% endif %}{% if selected_bank_type %}bank_account_type={{ selected_bank_type|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
             <span class="material-symbols-outlined text-[14px]">close</span>
         </a>
     </span>
     {% endif %}
 
-    {% if selected_tag %}
+    {% if selected_state %}
     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-soft-cyan/20 text-[#008ba3] border border-soft-cyan/30 font-semibold">
-        Tag: {{ selected_tag }}
-        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+        State: {{ selected_state }}
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_district %}district={{ selected_district|urlencode }}&{% endif %}{% if selected_bank_type %}bank_account_type={{ selected_bank_type|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_district %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 font-semibold">
+        District: {{ selected_district }}
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_state %}state={{ selected_state|urlencode }}&{% endif %}{% if selected_bank_type %}bank_account_type={{ selected_bank_type|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_bank_type %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 border border-indigo-500/20 font-semibold">
+        Bank Type: {{ selected_bank_type }}
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_state %}state={{ selected_state|urlencode }}&{% endif %}{% if selected_district %}district={{ selected_district|urlencode }}&{% endif %}{% if selected_date_range %}created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
             <span class="material-symbols-outlined text-[14px]">close</span>
         </a>
     </span>
@@ -221,7 +297,7 @@
     {% if selected_date_range %}
     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 font-semibold">
         Date: {{ active_filters.created_at_range|default:selected_date_range }}
-        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_tag %}tag={{ selected_tag|urlencode }}{% endif %}" class="hover:text-black">
+        <a href="{% url 'contacts:contact_list' %}?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_state %}state={{ selected_state|urlencode }}&{% endif %}{% if selected_district %}district={{ selected_district|urlencode }}&{% endif %}{% if selected_bank_type %}bank_account_type={{ selected_bank_type|urlencode }}{% endif %}" class="hover:text-black">
             <span class="material-symbols-outlined text-[14px]">close</span>
         </a>
     </span>
@@ -244,53 +320,50 @@
                     <th class="py-5 px-6 w-12"><input
                             class="rounded border-black/20 bg-white text-electric-violet focus:ring-electric-violet/50"
                             type="checkbox" /></th>
-                    <th class="py-5 px-4 font-label-md">Name</th>
-                    <th class="py-5 px-4 font-label-md">Email</th>
-                    <th class="py-5 px-4 font-label-md">Tags</th>
-                    <th class="py-5 px-4 font-label-md">Phone</th>
-                    <th class="py-5 px-4 font-label-md">Status</th>
-                    <th class="py-5 px-4 font-label-md">Date Added</th>
-                    <th class="py-5 px-4 text-center">Actions</th>
+                    <th class="py-5 px-4 font-label-md" data-col="name">Name</th>
+                    <th class="py-5 px-4 font-label-md" data-col="email">Email</th>
+                    <th class="py-5 px-4 font-label-md" data-col="phone">Phone</th>
+                    <th class="py-5 px-4 font-label-md" data-col="dob">Date of Birth</th>
+                    <th class="py-5 px-4 font-label-md" data-col="status">Status</th>
+                    <th class="py-5 px-4 font-label-md" data-col="created_at">Date Added</th>
+                    <th class="py-5 px-4 font-label-md hidden" data-col="pan">PAN No</th>
+                    <th class="py-5 px-4 font-label-md hidden" data-col="aadhar">Aadhar No</th>
+                    <th class="py-5 px-4 font-label-md hidden" data-col="pob">Place of Birth</th>
+                    <th class="py-5 px-4 font-label-md hidden" data-col="state">State</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-black/5 bg-white">
                 {% for contact in contacts %}
-                <tr class="hover:bg-surface-variant/50 transition-colors group">
-                    <td class="py-1 px-6"><input
+                <tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer" onclick="window.location='{% url 'contacts:edit_contact' contact.pk %}'">
+                    <td class="py-1 px-6" onclick="event.stopPropagation()"><input
                             class="rounded border-black/20 bg-white text-electric-violet focus:ring-electric-violet/50"
                             type="checkbox" /></td>
-                    <td>
-                        <div class="flex items-center gap-3">
+                    <td data-col="name">
+                        <a href="{% url 'contacts:edit_contact' contact.pk %}" class="flex items-center gap-3 group/link">
                             <span
-                                class="font-body-md font-medium text-on-surface group-hover:text-primary transition-colors">
-                                {{ contact.first_name }} {{ contact.last_name }}</span>
-                        </div>
+                                class="font-body-md font-medium text-on-surface group-hover/link:text-primary transition-colors">
+                                {{ contact.name }}</span>
+                        </a>
                     </td>
-                    <td class="text-on-surface-variant text-sm">{{ contact.email }}</td>
-                    <td>
-                        <span
-                            class="px-3 py-1 rounded-full text-[11px] font-bold bg-soft-cyan/10 text-[#00a8cc] border border-soft-cyan/20">
-                            {{ contact.tag|default:"Customer" }}</span>
-                    </td>
-                    <td class="text-on-surface-variant text-sm">+1 (555) 012-9923</td>
-                    <td>
+                    <td data-col="email" class="text-on-surface-variant text-sm">{{ contact.email }}</td>
+                    <td data-col="phone" class="text-on-surface-variant text-sm">{{ contact.mobile_no|default:"N/A" }}</td>
+                    <td data-col="dob" class="text-on-surface-variant text-sm">{{ contact.dob|date:"d/m/Y"|default:"N/A" }}</td>
+                    <td data-col="status">
                         <div class="flex items-center gap-2">
                             <div class="w-2 h-2 rounded-full bg-[#00a8cc] shadow-[0_0_8px_rgba(0,210,253,0.3)]">
                             </div>
                             <span class="text-sm font-medium text-on-surface">Available</span>
                         </div>
                     </td>
-                    <td class="text-on-surface-variant text-sm">{{ contact.created_at|date:"M d, Y" }}</td>
-                    <td class="text-center">
-                        <button
-                            class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-black/5">
-                            <span class="material-symbols-outlined">more_horiz</span>
-                        </button>
-                    </td>
+                    <td data-col="created_at" class="text-on-surface-variant text-sm">{{ contact.created_at|date:"M d, Y" }}</td>
+                    <td data-col="pan" class="text-on-surface-variant text-sm uppercase hidden">{{ contact.pan_no|default:"N/A" }}</td>
+                    <td data-col="aadhar" class="text-on-surface-variant text-sm hidden">{{ contact.aadhar_no|default:"N/A" }}</td>
+                    <td data-col="pob" class="text-on-surface-variant text-sm hidden">{{ contact.place_of_birth|default:"N/A" }}</td>
+                    <td data-col="state" class="text-on-surface-variant text-sm hidden">{{ contact.state|default:"N/A" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="py-8 text-center text-on-surface-variant">No contacts found.</td>
+                    <td colspan="11" class="py-8 text-center text-on-surface-variant">No contacts found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -375,7 +448,9 @@
         }
         const filterMenu = document.getElementById('filter-menu');
         const exportMenu = document.getElementById('export-menu');
+        const columnsMenu = document.getElementById('columns-menu');
         if (exportMenu) exportMenu.classList.add('hidden');
+        if (columnsMenu) columnsMenu.classList.add('hidden');
         if (filterMenu) {
             filterMenu.classList.toggle('hidden');
         }
@@ -388,32 +463,110 @@
         }
         const filterMenu = document.getElementById('filter-menu');
         const exportMenu = document.getElementById('export-menu');
+        const columnsMenu = document.getElementById('columns-menu');
         if (filterMenu) filterMenu.classList.add('hidden');
+        if (columnsMenu) columnsMenu.classList.add('hidden');
         if (exportMenu) {
             exportMenu.classList.toggle('hidden');
         }
+    }
+
+    function toggleColumnsMenu(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const filterMenu = document.getElementById('filter-menu');
+        const exportMenu = document.getElementById('export-menu');
+        const columnsMenu = document.getElementById('columns-menu');
+        if (filterMenu) filterMenu.classList.add('hidden');
+        if (exportMenu) exportMenu.classList.add('hidden');
+        if (columnsMenu) {
+            columnsMenu.classList.toggle('hidden');
+        }
+    }
+
+    function toggleColumn(colName, isVisible) {
+        const cells = document.querySelectorAll(`[data-col="${colName}"]`);
+        cells.forEach(cell => {
+            if (isVisible) {
+                cell.classList.remove('hidden');
+            } else {
+                cell.classList.add('hidden');
+            }
+        });
+        const storedState = JSON.parse(localStorage.getItem('lyrix_visible_columns') || '{}');
+        storedState[colName] = isVisible;
+        localStorage.setItem('lyrix_visible_columns', JSON.stringify(storedState));
+    }
+
+    function resetColumns() {
+        const defaults = {
+            name: true,
+            email: true,
+            phone: true,
+            dob: true,
+            status: true,
+            created_at: true,
+            pan: false,
+            aadhar: false,
+            pob: false,
+            state: false
+        };
+        localStorage.setItem('lyrix_visible_columns', JSON.stringify(defaults));
+        applyStoredColumnPreferences();
+    }
+
+    function selectAllColumns(showAll) {
+        const checkboxes = document.querySelectorAll('.column-toggle');
+        checkboxes.forEach(cb => {
+            cb.checked = showAll;
+            toggleColumn(cb.getAttribute('data-column'), showAll);
+        });
+    }
+
+    function applyStoredColumnPreferences() {
+        const storedState = JSON.parse(localStorage.getItem('lyrix_visible_columns') || '{}');
+        const checkboxes = document.querySelectorAll('.column-toggle');
+        checkboxes.forEach(cb => {
+            const colName = cb.getAttribute('data-column');
+            if (storedState.hasOwnProperty(colName)) {
+                cb.checked = storedState[colName];
+                toggleColumn(colName, storedState[colName]);
+            } else {
+                toggleColumn(colName, cb.checked);
+            }
+        });
     }
 
     // Close dropdowns when clicking outside
     window.addEventListener('click', (e) => {
         const filterMenu = document.getElementById('filter-menu');
         const exportMenu = document.getElementById('export-menu');
+        const columnsMenu = document.getElementById('columns-menu');
         if (filterMenu && !filterMenu.contains(e.target) && !e.target.closest('#filter-btn')) {
             filterMenu.classList.add('hidden');
         }
         if (exportMenu && !exportMenu.contains(e.target) && !e.target.closest('#export-btn')) {
             exportMenu.classList.add('hidden');
         }
+        if (columnsMenu && !columnsMenu.contains(e.target) && !e.target.closest('#columns-btn')) {
+            columnsMenu.classList.add('hidden');
+        }
     });
 
-    // Micro-interactions for table rows
-    document.querySelectorAll('tbody tr').forEach(row => {
-        row.addEventListener('mouseenter', () => {
-            row.style.transform = 'translateX(1px)';
-            row.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-        });
-        row.addEventListener('mouseleave', () => {
-            row.style.transform = 'translateX(0)';
+    // On DOM load, apply saved preferences and row micro-interactions
+    document.addEventListener('DOMContentLoaded', () => {
+        applyStoredColumnPreferences();
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(1px)';
+                row.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
         });
     });
 </script>
