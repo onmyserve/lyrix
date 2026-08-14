@@ -482,6 +482,53 @@ class ContactEditViewTestCase(TestCase):
         self.assertEqual(self.contact.mobile_no, '9998887770')
         self.assertEqual(self.contact.state, 'California')
 
+    def test_remove_uploaded_document(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.client.login(username='testuser', password='password123')
+        test_file = SimpleUploadedFile("pan.pdf", b"file_content", content_type="application/pdf")
+        self.contact.pan_doc = test_file
+        self.contact.save()
+
+        self.assertTrue(bool(self.contact.pan_doc))
+
+        data = {
+            'name': self.contact.name,
+            'mobile_no': self.contact.mobile_no,
+            'dob': '1990-01-01',
+            'email': self.contact.email,
+            'pan_doc-clear': 'on',
+            'bank_accounts-TOTAL_FORMS': '0',
+            'bank_accounts-INITIAL_FORMS': '0',
+            'bank_accounts-MIN_NUM_FORMS': '0',
+            'bank_accounts-MAX_NUM_FORMS': '1000',
+            'family_members-TOTAL_FORMS': '0',
+            'family_members-INITIAL_FORMS': '0',
+            'family_members-MIN_NUM_FORMS': '0',
+            'family_members-MAX_NUM_FORMS': '1000',
+            'nominees-TOTAL_FORMS': '0',
+            'nominees-INITIAL_FORMS': '0',
+            'nominees-MIN_NUM_FORMS': '0',
+            'nominees-MAX_NUM_FORMS': '1000',
+            'mandates-TOTAL_FORMS': '0',
+            'mandates-INITIAL_FORMS': '0',
+            'mandates-MIN_NUM_FORMS': '0',
+            'mandates-MAX_NUM_FORMS': '1000',
+        }
+        response = self.client.post(reverse('contacts:edit_contact', kwargs={'pk': self.contact.pk}), data)
+        self.assertRedirects(response, reverse('contacts:contact_list'))
+        self.contact.refresh_from_db()
+        self.assertFalse(bool(self.contact.pan_doc))
+
+    def test_delete_contact_view(self):
+        self.client.login(username='testuser', password='password123')
+        contact_id = self.contact.pk
+        response = self.client.post(reverse('contacts:delete_contact', kwargs={'pk': contact_id}))
+        self.assertRedirects(response, reverse('contacts:contact_list'))
+        self.assertFalse(Contact.objects.filter(pk=contact_id).exists())
+
+
+
+
 
 
 

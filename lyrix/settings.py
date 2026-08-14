@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['onmyserve.pythonanywhere.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     'contacts',
+    'mutual_funds',
     'core',
     'utils',
     'django.contrib.admin',

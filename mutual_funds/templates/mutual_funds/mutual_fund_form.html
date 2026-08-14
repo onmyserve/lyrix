@@ -1,0 +1,307 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{% if is_edit %}Edit Mutual Fund{% else %}Add Mutual Fund{% endif %} - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'mutual_funds:fund_list' %}" class="p-2 rounded-xl bg-white border border-black/10 hover:bg-surface-variant transition-all text-on-surface-variant">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-display-lg text-2xl text-on-surface">
+                    {% if is_edit %}Edit Mutual Fund{% else %}Add Mutual Fund{% endif %}
+                </h1>
+                <p class="text-xs text-on-surface-variant">
+                    {% if is_edit %}Update details for {{ fund.name|default:fund.contact.name }}{% else %}Register a new Mutual Fund entry for an existing member contact{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if not contacts_exist %}
+    <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-amber-600 text-2xl">warning</span>
+            <div>
+                <h4 class="font-semibold text-sm">No Contacts Found</h4>
+                <p class="text-xs text-amber-700">You must add at least one member in Contacts before registering mutual funds.</p>
+            </div>
+        </div>
+        <a href="{% url 'contacts:add_contact' %}" class="primary-gradient text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm hover:opacity-95 transition-all whitespace-nowrap">
+            + Add New Contact
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- FORM CARD -->
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- SECTION 1: MEMBER & INVESTOR DETAILS -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">person</span>
+                <span>Member & Investor Details</span>
+            </h3>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                    Select Member / Contact <span class="text-rose-500">*</span>
+                </label>
+                {{ form.contact }}
+                {% if form.contact.errors %}
+                    <p class="text-xs text-rose-600 mt-1">{{ form.contact.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Name</label>
+                    {{ form.name }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Mobile Number</label>
+                    {{ form.mobile_no }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">PAN</label>
+                    {{ form.pan }}
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: SIP INVESTMENT DETAILS -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">payments</span>
+                <span>SIP Investment Details</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">SIP Amount</label>
+                    {{ form.sip_amt }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">SIP Date</label>
+                    {{ form.sip_date }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Mode</label>
+                    {{ form.mode }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">SIP Start Date</label>
+                    {{ form.sip_start_date }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">SIP End Date</label>
+                    {{ form.sip_end_date }}
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: BANKING & MANDATE -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">account_balance</span>
+                <span>Banking & Mandate Details</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Bank</label>
+                    {{ form.bank }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Mandate ID</label>
+                    {{ form.mandate_id }}
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: FUND & AMC DETAILS -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">query_stats</span>
+                <span>Fund & AMC Details</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">AMC</label>
+                    {{ form.amc }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Folio Number</label>
+                    {{ form.folio_number }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Fund Description</label>
+                {{ form.fund_description }}
+            </div>
+        </div>
+
+        <!-- SECTION 5: M F REGISTER -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                <span>M F REGISTER</span>
+            </h3>
+
+            <!-- Row 1: MOBILE NO | NAME | PAN -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Mobile No</label>
+                    {{ form.mobile_no }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Name</label>
+                    {{ form.name }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">PAN</label>
+                    {{ form.pan }}
+                </div>
+            </div>
+
+            <!-- Row 2: Folio Number | Fund Description -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Folio Number</label>
+                    {{ form.folio_number }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Fund Description</label>
+                    {{ form.fund_description }}
+                </div>
+            </div>
+
+            <!-- Row 3: Transaction Date | Amount | Stamp Duty -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Transaction Date</label>
+                    {{ form.transaction_date }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Amount</label>
+                    {{ form.amount }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Stamp Duty</label>
+                    {{ form.stamp_duty }}
+                </div>
+            </div>
+
+            <!-- Row 4: Process Date | Price | Units -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Process Date</label>
+                    {{ form.process_date }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Price (NAV)</label>
+                    {{ form.price }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Units</label>
+                    {{ form.units }}
+                </div>
+            </div>
+
+            <!-- Row 5: Remarks | Transaction Description | Transaction ID -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Remarks</label>
+                    {{ form.remarks }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Transaction Description</label>
+                    {{ form.transaction_description }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">Transaction ID</label>
+                    {{ form.transaction_id }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="flex justify-end gap-3 pt-2">
+            <a href="{% url 'mutual_funds:fund_list' %}" class="px-5 py-2.5 rounded-xl border border-black/10 text-sm font-medium text-on-surface-variant hover:bg-surface-variant transition-all">
+                Cancel
+            </a>
+            <button type="submit" {% if not contacts_exist %}disabled{% endif %} class="primary-gradient text-white px-6 py-2.5 rounded-xl text-sm font-medium shadow-md hover:opacity-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                {% if is_edit %}Save Changes{% else %}Save Mutual Fund{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactSelect = document.getElementById('contact-select');
+        const nameInput = document.getElementById('name-input');
+        const mobileInput = document.getElementById('mobile-input');
+        const panInput = document.getElementById('pan-input');
+
+        if (contactSelect) {
+            contactSelect.addEventListener('change', function() {
+                const selectedOption = contactSelect.options[contactSelect.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const text = selectedOption.text;
+                    const parts = text.split(' - ');
+                    if (parts.length >= 1 && nameInput) {
+                        nameInput.value = parts[0].trim();
+                    }
+                    if (parts.length >= 2 && mobileInput) {
+                        nameInput.value = parts[0].trim();
+                        mobileInput.value = parts[1].trim();
+                    }
+                    if (parts.length >= 3 && panInput) {
+                        const panClean = parts[2].replace('PAN:', '').trim();
+                        panInput.value = panClean;
+                    }
+                }
+            });
+        }
+
+        const dateInputs = document.querySelectorAll('.date-input');
+        dateInputs.forEach(input => {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(input, {
+                    dateFormat: 'd/m/Y',
+                    allowInput: true,
+                    placeholder: 'DD/MM/YYYY'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

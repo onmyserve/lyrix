@@ -190,6 +190,7 @@ def add_contact_view(request):
         family_formset = FamilyMemberFormSet(request.POST, request.FILES)
         nominee_formset = NomineeFormSet(request.POST, request.FILES)
         mandate_formset = MandateFormSet(request.POST, request.FILES)
+
         if form.is_valid() and bank_formset.is_valid() and family_formset.is_valid() and nominee_formset.is_valid() and mandate_formset.is_valid():
             contact = form.save()
             bank_formset.instance = contact
@@ -403,8 +404,18 @@ def edit_contact_view(request, pk):
         'bank_formset': bank_formset,
         'family_formset': family_formset,
         'nominee_formset': nominee_formset,
-        'mandate_formset': mandate_formset,
     })
+
+
+@login_required
+def delete_contact_view(request, pk):
+    contact = get_object_or_404(Contact, pk=pk)
+    if request.method == 'POST':
+        name = contact.name
+        contact.delete()
+        messages.success(request, f'Contact "{name}" deleted successfully.')
+    return redirect('contacts:contact_list')
+
 
 
 

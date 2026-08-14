@@ -1,0 +1,539 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Mutual Funds SIP Register - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<header class="flex justify-between items-end mb-4 flex-shrink-0 relative z-40">
+    <div class="flex flex-col gap-unit-xs">
+        <h1 class="font-display-lg text-display-lg text-on-surface">Mutual Funds SIP Register</h1>
+        <p class="font-body-md text-on-surface-variant">
+            {% if search_query %}
+                Found <span class="font-semibold text-primary">{{ filtered_count }}</span> SIP record{% if filtered_count != 1 %}s{% endif %} matching "<span class="font-medium text-on-surface">{{ search_query }}</span>" (out of {{ total_count }} total)
+            {% else %}
+                {{ mutual_funds|length }} total SIP register record{% if mutual_funds|length != 1 %}s{% endif %}
+            {% endif %}
+        </p>
+    </div>
+    <div class="flex items-center gap-unit-md">
+        <button onclick="document.getElementById('import-modal').classList.remove('hidden')"
+            class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined text-[20px]">upload_file</span>
+            Import
+        </button>
+        <!-- Export Dropdown -->
+        <div class="relative inline-block text-left">
+            <button type="button" id="export-btn" onclick="toggleExportMenu(event)"
+                class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-sm cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">download</span>
+                <span>Export</span>
+                <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </button>
+            <div id="export-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-2xl border border-black/10 z-50 py-1 overflow-hidden">
+                <a href="{% url 'mutual_funds:export_funds' %}?format=csv{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_amc %}&amc={{ selected_amc|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium">
+                    <span class="material-symbols-outlined text-[20px] text-emerald-600">csv</span>
+                    <span>Export to CSV</span>
+                </a>
+                <a href="{% url 'mutual_funds:export_funds' %}?format=excel{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_amc %}&amc={{ selected_amc|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium border-t border-black/5">
+                    <span class="material-symbols-outlined text-[20px] text-electric-violet">table_view</span>
+                    <span>Export to Excel (.xlsx)</span>
+                </a>
+            </div>
+        </div>
+        <a href="{% url 'mutual_funds:add_fund' %}"
+            class="primary-gradient text-white px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-unit-sm transition-all duration-300 shadow-md">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Add Mutual Fund
+        </a>
+    </div>
+</header>
+
+{% if messages %}
+<div class="mb-4 relative z-20">
+    {% for message in messages %}
+    <div class="p-4 rounded-xl mb-2 text-sm font-medium flex items-center gap-3 border shadow-sm
+        {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200{% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border-rose-200{% else %}bg-amber-50 text-amber-800 border-amber-200{% endif %}">
+        <span class="material-symbols-outlined text-[20px]">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- CONTROL BAR -->
+<section class="flex flex-wrap items-center gap-unit-md mb-4 flex-shrink-0 relative z-30">
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'mutual_funds:fund_list' %}" class="flex-1 min-w-[320px] flex items-center gap-2">
+        {% if selected_amc %}
+        <input type="hidden" name="amc" value="{{ selected_amc }}">
+        {% endif %}
+        {% if selected_mode %}
+        <input type="hidden" name="mode" value="{{ selected_mode }}">
+        {% endif %}
+        {% if selected_date_range %}
+        <input type="hidden" name="created_at_range" value="{{ selected_date_range }}">
+        {% endif %}
+        <div class="relative flex-1">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input
+                name="q"
+                value="{{ search_query|default:'' }}"
+                class="w-full bg-white border border-black/5 focus:border-electric-violet focus:ring-1 focus:ring-electric-violet/30 rounded-xl py-3 pl-12 pr-10 text-on-surface placeholder:text-outline shadow-sm transition-all text-sm"
+                placeholder="Search name, mobile, PAN, AMC, fund, folio, bank, mandate ID..." type="text" />
+            {% if search_query %}
+            <a href="{% url 'mutual_funds:fund_list' %}{% if selected_amc %}?amc={{ selected_amc|urlencode }}{% endif %}"
+               title="Clear search"
+               class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-variant transition-all">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </a>
+            {% endif %}
+        </div>
+        <button type="submit"
+            class="primary-gradient text-white px-unit-lg py-3 rounded-xl font-label-md flex items-center gap-2 transition-all duration-300 shadow-md hover:opacity-95 cursor-pointer">
+            <span class="material-symbols-outlined text-[20px]">search</span>
+            <span>Search</span>
+        </button>
+    </form>
+
+    <!-- Filter Dropdown -->
+    <div class="relative inline-block text-left">
+        <button type="button" id="filter-btn" onclick="toggleFilterMenu(event)"
+            class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium cursor-pointer {% if active_filters %}border-electric-violet text-electric-violet bg-electric-violet/5{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+            <span class="font-label-md">Filter</span>
+            {% if active_filters %}
+            <span class="w-2 h-2 rounded-full bg-electric-violet"></span>
+            {% endif %}
+        </button>
+        <div id="filter-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-2xl border border-black/10 z-50 p-4 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-black/5 pb-2">
+                <span class="font-semibold text-sm text-on-surface flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-electric-violet">tune</span>
+                    Filter SIP Register
+                </span>
+                <button onclick="document.getElementById('filter-menu').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-0.5 rounded-md hover:bg-black/5">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <form method="GET" action="{% url 'mutual_funds:fund_list' %}" class="flex flex-col gap-3">
+                {% if search_query %}
+                <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+
+                {% if available_amcs %}
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">AMC</label>
+                    <select name="amc" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All AMCs</option>
+                        {% for a in available_amcs %}
+                        <option value="{{ a }}" {% if selected_amc == a %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% if available_modes %}
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Mode</label>
+                    <select name="mode" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Modes</option>
+                        {% for m in available_modes %}
+                        <option value="{{ m }}" {% if selected_mode == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Date Added</label>
+                    <select name="created_at_range" class="w-full bg-surface-variant/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-electric-violet">
+                        <option value="">All Time</option>
+                        <option value="today" {% if selected_date_range == 'today' %}selected{% endif %}>Today</option>
+                        <option value="7days" {% if selected_date_range == '7days' %}selected{% endif %}>Past 7 Days</option>
+                        <option value="30days" {% if selected_date_range == '30days' %}selected{% endif %}>Past 30 Days</option>
+                        <option value="this_year" {% if selected_date_range == 'this_year' %}selected{% endif %}>This Year</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-black/5 mt-1">
+                    <a href="{% url 'mutual_funds:fund_list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+                       class="px-3 py-1.5 rounded-lg border border-black/10 text-xs font-medium text-on-surface-variant hover:bg-surface-variant transition-all">
+                        Reset
+                    </a>
+                    <button type="submit"
+                            class="primary-gradient text-white px-4 py-1.5 rounded-lg font-medium text-xs shadow-md hover:opacity-95 transition-all cursor-pointer">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Columns Dropdown -->
+    <div class="relative inline-block text-left">
+        <button type="button" id="columns-btn" onclick="toggleColumnsMenu(event)"
+            class="flex items-center gap-2 px-unit-md py-3 rounded-xl border border-black/5 bg-white hover:border-electric-violet/30 hover:text-primary transition-all text-on-surface shadow-sm font-medium cursor-pointer">
+            <span class="material-symbols-outlined text-[20px]">view_column</span>
+            <span class="font-label-md">Columns</span>
+            <span class="material-symbols-outlined text-[18px]">expand_more</span>
+        </button>
+        <div id="columns-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-2xl border border-black/10 z-50 p-4 flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-black/5 pb-2">
+                <span class="font-semibold text-sm text-on-surface flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-electric-violet">view_column</span>
+                    Toggle Columns
+                </span>
+                <button onclick="document.getElementById('columns-menu').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-0.5 rounded-md hover:bg-black/5">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+            <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="name" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('name', this.checked)" />
+                    <span>Name</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="mobile_no" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('mobile_no', this.checked)" />
+                    <span>Mobile Number</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="pan" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('pan', this.checked)" />
+                    <span>PAN</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="amc" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('amc', this.checked)" />
+                    <span>AMC</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="fund_description" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('fund_description', this.checked)" />
+                    <span>Fund Description</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="sip_amt" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('sip_amt', this.checked)" />
+                    <span>SIP Amount</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="sip_date" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('sip_date', this.checked)" />
+                    <span>SIP Date</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="mode" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('mode', this.checked)" />
+                    <span>Mode</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="folio_number" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('folio_number', this.checked)" />
+                    <span>Folio Number</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="bank" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('bank', this.checked)" />
+                    <span>Bank</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="mandate_id" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('mandate_id', this.checked)" />
+                    <span>Mandate ID</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="amount" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('amount', this.checked)" />
+                    <span>Txn Amount</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="transaction_date" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('transaction_date', this.checked)" />
+                    <span>Txn Date</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="units" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('units', this.checked)" />
+                    <span>Units</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="price" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('price', this.checked)" />
+                    <span>Price (NAV)</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="transaction_id" class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('transaction_id', this.checked)" />
+                    <span>Txn ID</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-xs font-medium text-on-surface hover:bg-surface-variant/40 p-1.5 rounded-lg cursor-pointer">
+                    <input type="checkbox" data-column="created_at" checked class="column-toggle rounded border-black/20 text-electric-violet focus:ring-electric-violet/50" onchange="toggleColumn('created_at', this.checked)" />
+                    <span>Date Added</span>
+                </label>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-black/5 text-xs">
+                <button type="button" onclick="resetColumns()" class="text-on-surface-variant hover:text-electric-violet underline">Reset Default</button>
+                <button type="button" onclick="selectAllColumns(true)" class="text-electric-violet font-semibold hover:underline">Show All</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if active_filters or search_query %}
+<!-- ACTIVE FILTERS BADGES -->
+<div class="flex flex-wrap items-center gap-2 mb-4 relative z-10 text-xs font-medium">
+    <span class="text-on-surface-variant flex items-center gap-1">
+        <span class="material-symbols-outlined text-[16px]">filter_list</span>
+        Active filters:
+    </span>
+
+    {% if search_query %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-electric-violet/10 text-electric-violet border border-electric-violet/20 font-semibold">
+        Search: "{{ search_query }}"
+        <a href="{% url 'mutual_funds:fund_list' %}{% if selected_amc %}?amc={{ selected_amc|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_amc %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 border border-indigo-500/20 font-semibold">
+        AMC: {{ selected_amc }}
+        <a href="{% url 'mutual_funds:fund_list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}{% if selected_date_range %}&created_at_range={{ selected_date_range|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    {% if selected_date_range %}
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 border border-amber-500/20 font-semibold">
+        Date: {{ active_filters.created_at_range|default:selected_date_range }}
+        <a href="{% url 'mutual_funds:fund_list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}" class="hover:text-black">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+        </a>
+    </span>
+    {% endif %}
+
+    <a href="{% url 'mutual_funds:fund_list' %}" class="text-on-surface-variant hover:text-rose-600 underline ml-1">Clear all</a>
+</div>
+{% endif %}
+
+<!-- DATA TABLE -->
+<div class="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden flex-1 flex flex-col relative z-10">
+    <div class="overflow-x-auto flex-1">
+        <table class="w-full text-left border-collapse" id="mutual-funds-table">
+            <thead>
+                <tr class="bg-surface-variant/40 border-b border-black/5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                    <th class="py-4 px-6 col-name" data-col="name">Name</th>
+                    <th class="py-4 px-6 col-mobile_no" data-col="mobile_no">Mobile Number</th>
+                    <th class="py-4 px-6 col-pan" data-col="pan">PAN</th>
+                    <th class="py-4 px-6 col-amc" data-col="amc">AMC</th>
+                    <th class="py-4 px-6 col-fund_description" data-col="fund_description">Fund Description</th>
+                    <th class="py-4 px-6 col-sip_amt" data-col="sip_amt">SIP Amt</th>
+                    <th class="py-4 px-6 col-sip_date" data-col="sip_date">SIP Date</th>
+                    <th class="py-4 px-6 col-mode hidden" data-col="mode">Mode</th>
+                    <th class="py-4 px-6 col-folio_number hidden" data-col="folio_number">Folio Number</th>
+                    <th class="py-4 px-6 col-bank hidden" data-col="bank">Bank</th>
+                    <th class="py-4 px-6 col-mandate_id hidden" data-col="mandate_id">Mandate ID</th>
+                    <th class="py-4 px-6 col-amount hidden" data-col="amount">Amount</th>
+                    <th class="py-4 px-6 col-transaction_date hidden" data-col="transaction_date">Txn Date</th>
+                    <th class="py-4 px-6 col-units hidden" data-col="units">Units</th>
+                    <th class="py-4 px-6 col-price hidden" data-col="price">Price</th>
+                    <th class="py-4 px-6 col-transaction_id hidden" data-col="transaction_id">Txn ID</th>
+                    <th class="py-4 px-6 col-created_at" data-col="created_at">Date Added</th>
+                    <th class="py-4 px-6 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5 text-sm text-on-surface">
+                {% for fund in mutual_funds %}
+                <tr class="hover:bg-surface-variant/50 transition-colors group cursor-pointer" onclick="window.location='{% url 'mutual_funds:edit_fund' fund.pk %}'">
+                    <td class="py-4 px-6 font-medium text-on-surface col-name" data-col="name">
+                        <a href="{% url 'mutual_funds:edit_fund' fund.pk %}" class="flex items-center gap-3 group/link">
+                            <div class="w-9 h-9 rounded-full primary-gradient text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                                {{ fund.name|slice:":2"|upper }}
+                            </div>
+                            <span class="font-semibold text-on-surface group-hover/link:text-electric-violet transition-colors">{{ fund.name }}</span>
+                        </a>
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-mobile_no" data-col="mobile_no">
+                        {{ fund.mobile_no|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant font-mono text-xs col-pan" data-col="pan">
+                        {{ fund.pan|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 font-medium text-on-surface col-amc" data-col="amc">
+                        {{ fund.amc|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant max-w-[220px] truncate col-fund_description" data-col="fund_description" title="{{ fund.fund_description }}">
+                        {{ fund.fund_description|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 font-semibold text-emerald-700 col-sip_amt" data-col="sip_amt">
+                        {% if fund.sip_amt %}₹ {{ fund.sip_amt }}{% else %}—{% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-sip_date" data-col="sip_date">
+                        {{ fund.sip_date|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-mode hidden" data-col="mode">
+                        {{ fund.mode|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant font-mono text-xs col-folio_number hidden" data-col="folio_number">
+                        {{ fund.folio_number|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-bank hidden" data-col="bank">
+                        {{ fund.bank|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant font-mono text-xs col-mandate_id hidden" data-col="mandate_id">
+                        {{ fund.mandate_id|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant font-semibold col-amount hidden" data-col="amount">
+                        {{ fund.amount|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-transaction_date hidden" data-col="transaction_date">
+                        {{ fund.transaction_date|date:"d/m/Y"|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-units hidden" data-col="units">
+                        {{ fund.units|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant col-price hidden" data-col="price">
+                        {{ fund.price|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant font-mono text-xs col-transaction_id hidden" data-col="transaction_id">
+                        {{ fund.transaction_id|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant text-xs col-created_at" data-col="created_at">
+                        {{ fund.created_at|date:"d M Y, h:i A" }}
+                    </td>
+                    <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                        <form action="{% url 'mutual_funds:delete_fund' fund.pk %}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this mutual fund record for {{ fund.name|default:fund.contact.name|escapejs }}?');">
+                            {% csrf_token %}
+                            <button type="submit" class="p-1.5 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer" title="Delete Mutual Fund">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="18" class="py-12 text-center text-on-surface-variant">
+                        <div class="flex flex-col items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-4xl text-outline">receipt_long</span>
+                            <p class="font-medium">No mutual fund SIP records found.</p>
+                            {% if search_query or active_filters %}
+                            <p class="text-xs text-outline">Try adjusting your search query or clear filters.</p>
+                            <a href="{% url 'mutual_funds:fund_list' %}" class="mt-2 text-xs font-semibold text-electric-violet hover:underline">Clear Filters</a>
+                            {% else %}
+                            <a href="{% url 'mutual_funds:add_fund' %}" class="mt-2 text-xs font-semibold text-electric-violet hover:underline">Add your first Mutual Fund SIP entry</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div id="import-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-black/10 max-w-md w-full p-6 space-y-4">
+        <div class="flex justify-between items-center border-b border-black/5 pb-3">
+            <h3 class="font-display-md text-lg text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-electric-violet">upload_file</span>
+                Import Mutual Funds SIP
+            </h3>
+            <button onclick="document.getElementById('import-modal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-black/5">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form method="POST" action="{% url 'mutual_funds:import_funds' %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <p class="text-xs text-on-surface-variant">
+                Upload a <strong>CSV</strong> or <strong>Excel (.xlsx)</strong> file containing SIP records. Supported header names: <em>mobile_no, name, pan, sip_amt, sip_date, mode, sip_start_date, sip_end_date, bank, mandate_id, amc, fund_description, folio_number</em>.
+            </p>
+
+            <div class="border-2 border-dashed border-black/15 rounded-xl p-6 text-center hover:border-electric-violet transition-colors">
+                <input type="file" name="import_file" accept=".csv, .xlsx, .xls" required class="hidden" id="file-input" onchange="updateFileName(this)" />
+                <label for="file-input" class="cursor-pointer flex flex-col items-center gap-2">
+                    <span class="material-symbols-outlined text-3xl text-electric-violet">cloud_upload</span>
+                    <span class="text-sm font-medium text-on-surface" id="file-label">Click to select file</span>
+                    <span class="text-xs text-outline">.csv or .xlsx (max 10MB)</span>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-black/5">
+                <button type="button" onclick="document.getElementById('import-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-sm font-medium text-on-surface-variant border border-black/10 hover:bg-surface-variant transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-gradient text-white px-5 py-2 rounded-xl text-sm font-medium shadow-md hover:opacity-95 transition-all cursor-pointer">
+                    Import SIP Records
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleExportMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('export-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    function toggleFilterMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('filter-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    function toggleColumnsMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('columns-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function () {
+        document.getElementById('export-menu')?.classList.add('hidden');
+        document.getElementById('filter-menu')?.classList.add('hidden');
+        document.getElementById('columns-menu')?.classList.add('hidden');
+    });
+
+    function updateFileName(input) {
+        const label = document.getElementById('file-label');
+        if (input.files && input.files[0]) {
+            label.textContent = input.files[0].name;
+        } else {
+            label.textContent = 'Click to select file';
+        }
+    }
+
+    function toggleColumn(colName, isVisible) {
+        const cells = document.querySelectorAll(`[data-col="${colName}"]`);
+        cells.forEach(cell => {
+            if (isVisible) {
+                cell.classList.remove('hidden');
+            } else {
+                cell.classList.add('hidden');
+            }
+        });
+        localStorage.setItem(`mf_col_${colName}`, isVisible);
+    }
+
+    function resetColumns() {
+        document.querySelectorAll('.column-toggle').forEach(checkbox => {
+            checkbox.checked = !checkbox.closest('label').querySelector('[data-column="mode"], [data-column="folio_number"], [data-column="bank"], [data-column="mandate_id"]');
+            toggleColumn(checkbox.dataset.column, checkbox.checked);
+        });
+    }
+
+    function selectAllColumns(show) {
+        document.querySelectorAll('.column-toggle').forEach(checkbox => {
+            checkbox.checked = show;
+            toggleColumn(checkbox.dataset.column, show);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.column-toggle').forEach(checkbox => {
+            const colName = checkbox.dataset.column;
+            const savedState = localStorage.getItem(`mf_col_${colName}`);
+            if (savedState !== null) {
+                const isVisible = savedState === 'true';
+                checkbox.checked = isVisible;
+                toggleColumn(colName, isVisible);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -3,6 +3,51 @@ from .models import Contact, BankAccount, FamilyMember, Nominee, Mandate
 
 INDIAN_DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d-%m-%Y', '%Y-%m-%d']
 
+STATE_CHOICES = [
+    ('', '-- Select State --'),
+    ('Andhra Pradesh', 'Andhra Pradesh'),
+    ('Arunachal Pradesh', 'Arunachal Pradesh'),
+    ('Assam', 'Assam'),
+    ('Bihar', 'Bihar'),
+    ('Chhattisgarh', 'Chhattisgarh'),
+    ('Goa', 'Goa'),
+    ('Gujarat', 'Gujarat'),
+    ('Haryana', 'Haryana'),
+    ('Himachal Pradesh', 'Himachal Pradesh'),
+    ('Jharkhand', 'Jharkhand'),
+    ('Karnataka', 'Karnataka'),
+    ('Kerala', 'Kerala'),
+    ('Madhya Pradesh', 'Madhya Pradesh'),
+    ('Maharashtra', 'Maharashtra'),
+    ('Manipur', 'Manipur'),
+    ('Meghalaya', 'Meghalaya'),
+    ('Mizoram', 'Mizoram'),
+    ('Nagaland', 'Nagaland'),
+    ('Odisha', 'Odisha'),
+    ('Punjab', 'Punjab'),
+    ('Rajasthan', 'Rajasthan'),
+    ('Sikkim', 'Sikkim'),
+    ('Tamil Nadu', 'Tamil Nadu'),
+    ('Telangana', 'Telangana'),
+    ('Tripura', 'Tripura'),
+    ('Uttar Pradesh', 'Uttar Pradesh'),
+    ('Uttarakhand', 'Uttarakhand'),
+    ('West Bengal', 'West Bengal'),
+    ('Andaman and Nicobar Islands', 'Andaman and Nicobar Islands'),
+    ('Chandigarh', 'Chandigarh'),
+    ('Dadra and Nagar Haveli and Daman and Diu', 'Dadra and Nagar Haveli and Daman and Diu'),
+    ('Delhi', 'Delhi'),
+    ('Jammu and Kashmir', 'Jammu and Kashmir'),
+    ('Ladakh', 'Ladakh'),
+    ('Lakshadweep', 'Lakshadweep'),
+    ('Puducherry', 'Puducherry'),
+]
+
+
+class CleanClearableFileInput(forms.ClearableFileInput):
+    template_name = 'django/forms/widgets/file.html'
+
+
 class ContactForm(forms.ModelForm):
     mobile_no = forms.CharField(required=True, label="Mobile No")
     name = forms.CharField(required=True, label="Name")
@@ -27,15 +72,31 @@ class ContactForm(forms.ModelForm):
     street_address = forms.CharField(required=False, label="Door No / Street")
     taluk = forms.CharField(required=False, label="Taluk")
     district = forms.CharField(required=False, label="District")
-    state = forms.CharField(required=False, label="State")
+    state = forms.CharField(
+        required=False,
+        label="State",
+        widget=forms.Select(
+            choices=STATE_CHOICES,
+            attrs={
+                'id': 'id_state',
+                'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+            }
+        )
+    )
 
-    bank_account_type = forms.ChoiceField(
+    bank_account_type = forms.CharField(
         required=False,
         label="Type",
-        choices=[
-            ('Savings Account', 'Savings Account'),
-            ('Current Account', 'Current Account')
-        ]
+        widget=forms.Select(
+            choices=[
+                ('', '-- Select Account Type --'),
+                ('Savings Account', 'Savings Account'),
+                ('Current Account', 'Current Account')
+            ],
+            attrs={
+                'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+            }
+        )
     )
     ifsc_code = forms.CharField(required=False, label="IFSC Code")
     micr_code = forms.CharField(required=False, label="MICR Code")
@@ -98,7 +159,20 @@ class ContactForm(forms.ModelForm):
     son_mobile = forms.CharField(required=False, label="Son Mobile")
     son_pan = forms.CharField(required=False, label="Son PAN")
     son_aadhar = forms.CharField(required=False, label="Son Aadhaar")
-    
+
+    pan_doc = forms.FileField(
+        required=False,
+        widget=CleanClearableFileInput(attrs={
+            'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+    aadhar_doc = forms.FileField(
+        required=False,
+        widget=CleanClearableFileInput(attrs={
+            'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
+        })
+    )
+
     class Meta:
         model = Contact
         fields = [
@@ -121,12 +195,14 @@ class ContactForm(forms.ModelForm):
 
 
 class BankAccountForm(forms.ModelForm):
-    account_type = forms.ChoiceField(
+    account_type = forms.CharField(
         required=False,
-        choices=BankAccount.ACCOUNT_TYPE_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
-        })
+        widget=forms.Select(
+            choices=[('', '-- Select Account Type --')] + BankAccount.ACCOUNT_TYPE_CHOICES,
+            attrs={
+                'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+            }
+        )
     )
     bank_name = forms.CharField(
         required=False,
@@ -171,12 +247,14 @@ BankAccountFormSet = forms.inlineformset_factory(
 
 
 class FamilyMemberForm(forms.ModelForm):
-    relationship = forms.ChoiceField(
+    relationship = forms.CharField(
         required=False,
-        choices=FamilyMember.RELATIONSHIP_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
-        })
+        widget=forms.Select(
+            choices=[('', '-- Select Relationship --')] + FamilyMember.RELATIONSHIP_CHOICES,
+            attrs={
+                'class': 'w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet'
+            }
+        )
     )
     name = forms.CharField(
         required=False,
@@ -210,7 +288,7 @@ class FamilyMemberForm(forms.ModelForm):
     )
     pan_doc = forms.FileField(
         required=False,
-        widget=forms.FileInput(attrs={
+        widget=CleanClearableFileInput(attrs={
             'class': 'w-full text-[11px] text-on-surface file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
         })
     )
@@ -223,7 +301,7 @@ class FamilyMemberForm(forms.ModelForm):
     )
     aadhar_doc = forms.FileField(
         required=False,
-        widget=forms.FileInput(attrs={
+        widget=CleanClearableFileInput(attrs={
             'class': 'w-full text-[11px] text-on-surface file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
         })
     )
@@ -258,10 +336,12 @@ class NomineeForm(forms.ModelForm):
     )
     relationship = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Spouse / Child / Parent',
-            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
-        })
+        widget=forms.Select(
+            choices=[('', '-- Select Relationship --')] + FamilyMember.RELATIONSHIP_CHOICES,
+            attrs={
+                'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+            }
+        )
     )
     dob = forms.DateField(
         required=False,
@@ -281,7 +361,7 @@ class NomineeForm(forms.ModelForm):
     )
     pan_doc = forms.FileField(
         required=False,
-        widget=forms.FileInput(attrs={
+        widget=CleanClearableFileInput(attrs={
             'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
         })
     )
@@ -294,7 +374,7 @@ class NomineeForm(forms.ModelForm):
     )
     aadhar_doc = forms.FileField(
         required=False,
-        widget=forms.FileInput(attrs={
+        widget=CleanClearableFileInput(attrs={
             'class': 'w-full text-xs text-on-surface file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-electric-violet/10 file:text-electric-violet hover:file:bg-electric-violet/20 cursor-pointer'
         })
     )
@@ -328,12 +408,14 @@ NomineeFormSet = forms.inlineformset_factory(
 
 
 class MandateForm(forms.ModelForm):
-    provider = forms.ChoiceField(
+    provider = forms.CharField(
         required=False,
-        choices=Mandate.PROVIDER_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
-        })
+        widget=forms.Select(
+            choices=[('', '-- Select Provider --')] + Mandate.PROVIDER_CHOICES,
+            attrs={
+                'class': 'w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-on-surface text-sm focus:outline-none focus:border-electric-violet focus:ring-1 focus:ring-electric-violet transition-all'
+            }
+        )
     )
     bank_name = forms.CharField(
         required=False,
@@ -382,17 +464,3 @@ MandateFormSet = forms.inlineformset_factory(
     extra=1,
     can_delete=True
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
