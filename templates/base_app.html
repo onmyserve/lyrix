@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
 {% block body_content %}
-<div class="flex h-screen w-full relative overflow-hidden">
+<div class="flex h-screen w-full relative overflow-hidden" id="app-container">
     <!-- Decoupled Modular Side Navbar -->
     {% include 'includes/sidebar.html' %}
 
     <!-- Main App Container -->
-    <main class="flex-1 ml-[260px] h-screen overflow-y-auto p-4 flex flex-col relative">
-
+    <main id="main-content" class="flex-1 ml-[260px] h-screen overflow-y-auto p-4 flex flex-col relative transition-all duration-300">
         <!-- Atmospheric Glow Background -->
         <div
             class="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-electric-violet/5 blur-[150px] rounded-full pointer-events-none">
@@ -20,4 +19,239 @@
         {% block content %}{% endblock %}
     </main>
 </div>
+
+<!-- Full View Layout Controller Script -->
+<script>
+function toggleFullView(forceState) {
+    const sidebar = document.getElementById('sidebar-nav') || document.querySelector('aside');
+    const mainContent = document.getElementById('main-content');
+    const borderIcon = document.getElementById('border-toggle-icon');
+    const textLabels = document.querySelectorAll('.sidebar-text-content');
+    const navLinks = document.querySelectorAll('.sidebar-nav-link');
+    
+    const isCurrentlyFull = document.body.classList.contains('full-view-mode');
+    const newState = (typeof forceState === 'boolean') ? forceState : !isCurrentlyFull;
+
+    if (newState) {
+        document.body.classList.add('full-view-mode');
+        if (sidebar) {
+            sidebar.classList.remove('w-[260px]');
+            sidebar.classList.add('w-[72px]');
+        }
+        if (mainContent) {
+            mainContent.classList.remove('ml-[260px]');
+            mainContent.classList.add('ml-[72px]');
+        }
+        textLabels.forEach(el => el.classList.add('hidden'));
+        navLinks.forEach(el => el.classList.add('justify-center'));
+        if (borderIcon) borderIcon.textContent = 'chevron_right';
+        localStorage.setItem('lyrix_full_view', 'true');
+    } else {
+        document.body.classList.remove('full-view-mode');
+        if (sidebar) {
+            sidebar.classList.remove('w-[72px]');
+            sidebar.classList.add('w-[260px]');
+        }
+        if (mainContent) {
+            mainContent.classList.remove('ml-[72px]');
+            mainContent.classList.add('ml-[260px]');
+        }
+        textLabels.forEach(el => el.classList.remove('hidden'));
+        navLinks.forEach(el => el.classList.remove('justify-center'));
+        if (borderIcon) borderIcon.textContent = 'chevron_left';
+        localStorage.setItem('lyrix_full_view', 'false');
+    }
+}
+
+// Restore user full-view preference on page load
+document.addEventListener('DOMContentLoaded', function () {
+    if (localStorage.getItem('lyrix_full_view') === 'true') {
+        toggleFullView(true);
+    }
+});
+
+// Shortcut listener: Ctrl+Shift+F
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+        e.preventDefault();
+        toggleFullView();
+    }
+});
+</script>
+
+
+<!-- IFSC & Bank Details Auto-Fill & Datalist Autocomplete Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let bankCache = [];
+
+    // Create global datalists for IFSC and Bank Name autocomplete
+    const ifscDatalist = document.createElement('datalist');
+    ifscDatalist.id = 'ifsc-auto-datalist';
+    document.body.appendChild(ifscDatalist);
+
+    const bankDatalist = document.createElement('datalist');
+    bankDatalist.id = 'bank-names-auto-datalist';
+    document.body.appendChild(bankDatalist);
+
+    function refreshDatalists() {
+        fetch('/bank-details/api/lookup/')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.results) {
+                    bankCache = data.results;
+                    ifscDatalist.innerHTML = '';
+                    bankDatalist.innerHTML = '';
+                    
+                    const uniqueBanks = new Set();
+                    data.results.forEach(item => {
+                        if (item.ifsc_code) {
+                            const opt = document.createElement('option');
+                            opt.value = item.ifsc_code;
+                            ifscDatalist.appendChild(opt);
+                        }
+                        if (item.bank_name && !uniqueBanks.has(item.bank_name)) {
+                            uniqueBanks.add(item.bank_name);
+                            const optB = document.createElement('option');
+                            optB.value = item.bank_name;
+                            bankDatalist.appendChild(optB);
+                        }
+                    });
+                }
+            })
+            .catch(err => console.warn('Bank datalist fetch warning:', err));
+    }
+
+    refreshDatalists();
+
+    function setupIfscLookup(input) {
+        if (!input || input.dataset.ifscListenerAttached || input.name === 'q' || input.type === 'search') return;
+        input.dataset.ifscListenerAttached = 'true';
+        input.setAttribute('list', 'ifsc-auto-datalist');
+        input.setAttribute('autocomplete', 'off');
+
+        let lastFetched = '';
+
+        function doLookup() {
+            let val = input.value.trim().toUpperCase();
+            input.value = val;
+            if (val.length >= 4 && val !== lastFetched) {
+                lastFetched = val;
+
+                const card = input.closest('.bank-account-card') ||
+                             input.closest('tr') ||
+                             input.closest('.grid') ||
+                             input.closest('form') ||
+                             input.parentElement.parentElement;
+                
+                if (!card) return;
+
+                const bankNameField = card.querySelector('input[name*="bank_name"], input[id*="bank_name"]');
+                const micrField = card.querySelector('input[name*="micr_code"], input[name*="micr"], input[id*="micr"]');
+
+                // Check local cache first for instant response
+                const cachedItem = bankCache.find(b => b.ifsc_code && b.ifsc_code.toUpperCase() === val);
+                if (cachedItem) {
+                    if (bankNameField && cachedItem.bank_name && (!bankNameField.value || bankNameField.value !== cachedItem.bank_name)) {
+                        bankNameField.value = cachedItem.bank_name;
+                        flashHighlight(bankNameField);
+                    }
+                    if (micrField && cachedItem.micr_code && (!micrField.value || micrField.value !== cachedItem.micr_code)) {
+                        micrField.value = cachedItem.micr_code;
+                        flashHighlight(micrField);
+                    }
+                    return;
+                }
+
+                // If not in cache and length is 11, query API
+                if (val.length === 11) {
+                    fetch('/bank-details/api/lookup/?ifsc=' + encodeURIComponent(val))
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.found) {
+                                if (bankNameField && data.bank_name) {
+                                    bankNameField.value = data.bank_name;
+                                    flashHighlight(bankNameField);
+                                }
+                                if (micrField && data.micr_code) {
+                                    micrField.value = data.micr_code;
+                                    flashHighlight(micrField);
+                                }
+                            }
+                        })
+                        .catch(err => console.warn('IFSC lookup warning:', err));
+                }
+            }
+        }
+
+        input.addEventListener('input', doLookup);
+        input.addEventListener('change', doLookup);
+        input.addEventListener('blur', doLookup);
+    }
+
+    function setupBankNameLookup(input) {
+        if (!input || input.dataset.bankListenerAttached || input.name === 'q' || input.type === 'search') return;
+        input.dataset.bankListenerAttached = 'true';
+        input.setAttribute('list', 'bank-names-auto-datalist');
+
+        function onBankNameChange() {
+            const bName = input.value.trim();
+            if (!bName) return;
+
+            const card = input.closest('.bank-account-card') ||
+                         input.closest('tr') ||
+                         input.closest('.grid') ||
+                         input.closest('form') ||
+                         input.parentElement.parentElement;
+            if (!card) return;
+
+            const ifscField = card.querySelector('input[name*="ifsc_code"], input[name*="ifsc"], input[id*="ifsc"]');
+            const micrField = card.querySelector('input[name*="micr_code"], input[name*="micr"], input[id*="micr"]');
+
+            const match = bankCache.find(b => b.bank_name && b.bank_name.toLowerCase() === bName.toLowerCase());
+            if (match) {
+                if (ifscField && !ifscField.value && match.ifsc_code) {
+                    ifscField.value = match.ifsc_code;
+                    flashHighlight(ifscField);
+                }
+                if (micrField && !micrField.value && match.micr_code) {
+                    micrField.value = match.micr_code;
+                    flashHighlight(micrField);
+                }
+            }
+        }
+
+        input.addEventListener('change', onBankNameChange);
+        input.addEventListener('blur', onBankNameChange);
+    }
+
+    function flashHighlight(el) {
+        el.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+        setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+        }, 1500);
+    }
+
+    function scanInputs() {
+        // Specifically target IFSC fields (must contain "ifsc")
+        const allInputs = Array.from(document.querySelectorAll('input'));
+        
+        allInputs.forEach(input => {
+            const nameOrId = ((input.name || '') + ' ' + (input.id || '')).toLowerCase();
+            if (nameOrId.includes('ifsc')) {
+                setupIfscLookup(input);
+            } else if (nameOrId.includes('bank_name') || nameOrId.endsWith('bank_name')) {
+                setupBankNameLookup(input);
+            }
+        });
+    }
+
+    scanInputs();
+
+    const observer = new MutationObserver(scanInputs);
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
 {% endblock %}
+
+

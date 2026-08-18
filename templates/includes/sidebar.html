@@ -1,79 +1,98 @@
 <!-- SIDE NAVBAR -->
-<aside
-    class="w-[260px] h-screen fixed left-0 top-0 border-r border-glass-border flex flex-col p-unit-md bg-glass-fill backdrop-blur-[25px] shadow-[0_4px_20px_rgba(0,0,0,0.05)] z-50">
-    <div class="flex items-center gap-unit-md mb-unit-xl">
-        <div class="w-10 h-10 rounded-lg primary-gradient flex items-center justify-center shadow-md">
+<aside id="sidebar-nav"
+    class="w-[260px] h-screen fixed left-0 top-0 border-r border-glass-border flex flex-col p-3 bg-glass-fill backdrop-blur-[25px] shadow-[0_4px_20px_rgba(0,0,0,0.05)] z-50 transition-all duration-300 group">
+    
+    <!-- TOGGLE BUTTON ON THE LEFT BORDER LINE -->
+    <button type="button" id="border-full-view-toggle" onclick="toggleFullView()"
+        title="Toggle Full View (Ctrl+Shift+F)"
+        class="absolute -right-3.5 top-7 w-7 h-7 rounded-full bg-white text-on-surface border border-black/10 shadow-md hover:bg-electric-violet hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer z-50">
+        <span class="material-symbols-outlined text-[18px]" id="border-toggle-icon">chevron_left</span>
+    </button>
+
+    <!-- HEADER / BRANDING -->
+    <div class="flex items-center gap-3 mb-6 px-1">
+        <div class="w-10 h-10 rounded-lg primary-gradient flex items-center justify-center shadow-md shrink-0">
             <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">dataset</span>
         </div>
-        <div class="flex flex-col">
-            <span class="font-display-lg text-headline-md tracking-tight text-on-surface leading-none">LYRIX
-                CRM</span>
-            <span
-                class="font-caption text-on-surface-variant text-[10px] tracking-widest uppercase font-semibold">Enterprise
-                Tier</span>
+        <div class="flex flex-col sidebar-text-content transition-opacity duration-200">
+            <span class="font-display-lg text-headline-md tracking-tight text-on-surface leading-none">LYRIX CRM</span>
+            <span class="font-caption text-on-surface-variant text-[10px] tracking-widest uppercase font-semibold">Enterprise Tier</span>
         </div>
     </div>
-    <nav class="flex-1 space-y-1 overflow-y-auto">
+
+    <!-- NAVIGATION LINKS -->
+    <nav class="flex-1 space-y-1.5 overflow-y-auto">
         {% if 'dashboard' in INSTALLED_APPS or 'core' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Dashboard" class="sidebar-nav-link flex items-center gap-3 p-2.5 text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-all duration-200 rounded-xl active:scale-95"
             href="#">
-            <span class="material-symbols-outlined">dashboard</span>
-            <span class="font-body-md font-medium">Dashboard</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]">dashboard</span>
+            <span class="font-body-md font-medium sidebar-text-content truncate">Dashboard</span>
         </a>
         {% endif %}
 
         {% if 'contacts' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md {% if request.resolver_match.app_name == 'contacts' or active_menu == 'contacts' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Contacts" class="sidebar-nav-link flex items-center gap-3 p-2.5 {% if request.resolver_match.app_name == 'contacts' or active_menu == 'contacts' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-all duration-200 rounded-xl active:scale-95"
             href="{% url 'contacts:contact_list' %}">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">contacts</span>
-            <span class="font-body-md">Contacts</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]" style="font-variation-settings: 'FILL' 1;">contacts</span>
+            <span class="font-body-md sidebar-text-content truncate">Contacts</span>
         </a>
         {% endif %}
 
         {% if 'mutual_funds' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md {% if request.resolver_match.app_name == 'mutual_funds' or active_menu == 'mutual_funds' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Mutual Funds" class="sidebar-nav-link flex items-center gap-3 p-2.5 {% if request.resolver_match.app_name == 'mutual_funds' or active_menu == 'mutual_funds' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-all duration-200 rounded-xl active:scale-95"
             href="{% url 'mutual_funds:fund_list' %}">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
-            <span class="font-body-md">Mutual Funds</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+            <span class="font-body-md sidebar-text-content truncate">Mutual Funds</span>
         </a>
         {% endif %}
 
+        {% if 'bank_details' in INSTALLED_APPS or 'core' in INSTALLED_APPS %}
+        <a title="Bank Details" class="sidebar-nav-link flex items-center gap-3 p-2.5 {% if request.resolver_match.app_name == 'bank_details' or active_menu == 'bank_details' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-all duration-200 rounded-xl active:scale-95"
+            href="{% url 'bank_details:list' %}">
+            <span class="material-symbols-outlined shrink-0 text-[22px]" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+            <span class="font-body-md sidebar-text-content truncate">Bank Details</span>
+        </a>
+        {% endif %}
+
+
         {% if 'form_builder' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Form Builder" class="sidebar-nav-link flex items-center gap-3 p-2.5 text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-all duration-200 rounded-xl active:scale-95"
             href="#">
-            <span class="material-symbols-outlined">dynamic_form</span>
-            <span class="font-body-md font-medium">Form Builder</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]">dynamic_form</span>
+            <span class="font-body-md font-medium sidebar-text-content truncate">Form Builder</span>
         </a>
         {% endif %}
 
         {% if 'analytics' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Analytics" class="sidebar-nav-link flex items-center gap-3 p-2.5 text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-all duration-200 rounded-xl active:scale-95"
             href="#">
-            <span class="material-symbols-outlined">monitoring</span>
-            <span class="font-body-md font-medium">Analytics</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]">monitoring</span>
+            <span class="font-body-md font-medium sidebar-text-content truncate">Analytics</span>
         </a>
         {% endif %}
 
         {% if 'pipeline' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Sales Pipeline" class="sidebar-nav-link flex items-center gap-3 p-2.5 text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-all duration-200 rounded-xl active:scale-95"
             href="#">
-            <span class="material-symbols-outlined">query_stats</span>
-            <span class="font-body-md font-medium">Sales Pipeline</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]">query_stats</span>
+            <span class="font-body-md font-medium sidebar-text-content truncate">Sales Pipeline</span>
         </a>
         {% endif %}
 
         {% if 'settings' in INSTALLED_APPS %}
-        <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+        <a title="Settings" class="sidebar-nav-link flex items-center gap-3 p-2.5 text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-all duration-200 rounded-xl active:scale-95"
             href="#">
-            <span class="material-symbols-outlined">settings</span>
-            <span class="font-body-md font-medium">Settings</span>
+            <span class="material-symbols-outlined shrink-0 text-[22px]">settings</span>
+            <span class="font-body-md font-medium sidebar-text-content truncate">Settings</span>
         </a>
         {% endif %}
     </nav>
-    <div class="mt-auto pt-unit-md border-t border-black/5 relative" id="user-profile-container">
+
+    <!-- USER PROFILE SECTION -->
+    <div class="mt-auto pt-3 border-t border-black/5 relative" id="user-profile-container">
         <!-- User Profile Dropdown Menu -->
         <div id="user-profile-dropdown"
-            class="hidden absolute bottom-full left-0 mb-2 w-full bg-surface border border-outline-variant/50 rounded-xl shadow-lg py-2 z-50 overflow-hidden backdrop-blur-md">
+            class="hidden absolute bottom-full left-0 mb-2 w-56 bg-surface border border-outline-variant/50 rounded-xl shadow-lg py-2 z-50 overflow-hidden backdrop-blur-md">
             <div class="px-4 py-2 border-b border-outline-variant/30">
                 <p class="text-[10px] uppercase font-semibold tracking-wider text-on-surface-variant">Signed in as</p>
                 <p class="font-body-md text-sm font-medium text-on-surface truncate">
@@ -83,7 +102,7 @@
             <form method="post" action="{% url 'logout' %}" class="w-full m-0 p-0">
                 {% csrf_token %}
                 <button type="submit"
-                    class="w-full flex items-center gap-unit-md px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 font-medium transition-colors cursor-pointer text-left">
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 font-medium transition-colors cursor-pointer text-left">
                     <span class="material-symbols-outlined text-lg">logout</span>
                     <span class="font-body-md text-sm">Logout</span>
                 </button>
@@ -91,21 +110,21 @@
         </div>
 
         <!-- User Profile Toggle Button -->
-        <button id="user-profile-button" type="button"
-            class="w-full flex items-center gap-unit-md p-unit-md rounded-lg hover:bg-surface-variant transition-colors cursor-pointer text-left focus:outline-none">
+        <button id="user-profile-button" type="button" title="User Profile"
+            class="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-surface-variant transition-colors cursor-pointer text-left focus:outline-none">
             <div
-                class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center font-bold text-[#cc5500] border border-tertiary/30 shrink-0">
+                class="w-9 h-9 rounded-full bg-tertiary/20 flex items-center justify-center font-bold text-[#cc5500] border border-tertiary/30 shrink-0 text-xs">
                 {% if user.is_authenticated %}{{ user.username|slice:":2"|upper }}{% else %}AV{% endif %}
             </div>
-            <div class="flex flex-col flex-1 min-w-0">
-                <span class="font-body-md text-on-surface font-medium text-sm truncate">
+            <div class="flex flex-col flex-1 min-w-0 sidebar-text-content">
+                <span class="font-body-md text-on-surface font-medium text-xs truncate">
                     {% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Alex Vance{% endif %}
                 </span>
-                <span class="font-caption text-on-surface-variant text-[11px] truncate">
+                <span class="font-caption text-on-surface-variant text-[10px] truncate">
                     {% if user.is_authenticated %}{{ user.email|default:"System Admin" }}{% else %}System Admin{% endif %}
                 </span>
             </div>
-            <span class="material-symbols-outlined text-on-surface-variant text-base transition-transform duration-200" id="user-profile-chevron">
+            <span class="material-symbols-outlined text-on-surface-variant text-base transition-transform duration-200 sidebar-text-content" id="user-profile-chevron">
                 unfold_more
             </span>
         </button>
@@ -137,4 +156,4 @@
             }
         });
     </script>
-</aside>
+</aside>
