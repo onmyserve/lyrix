@@ -30,6 +30,14 @@
         </a>
         {% endif %}
 
+        {% if 'mutual_funds' in INSTALLED_APPS %}
+        <a class="flex items-center gap-unit-md p-unit-md {% if request.resolver_match.app_name == 'mutual_funds' or active_menu == 'mutual_funds' %}text-primary font-bold bg-electric-violet/10{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-variant{% endif %} transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
+            href="{% url 'mutual_funds:fund_list' %}">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+            <span class="font-body-md">Mutual Funds</span>
+        </a>
+        {% endif %}
+
         {% if 'form_builder' in INSTALLED_APPS %}
         <a class="flex items-center gap-unit-md p-unit-md text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors duration-200 rounded-lg active:scale-95 transition-transform"
             href="#">

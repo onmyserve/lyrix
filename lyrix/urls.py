@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')), # Provides /login/, /logout/
     path('contacts/', include('contacts.urls')),
+    path('mutual-funds/', include('mutual_funds.urls')),
     path('', include('core.urls')), 
 ]
