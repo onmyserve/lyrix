@@ -1,0 +1,309 @@
+{% extends 'base_app.html' %}
+
+{% block title %}Bank Details - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<header class="flex justify-between items-end mb-6 flex-shrink-0 relative z-40">
+    <div class="flex flex-col gap-1">
+        <h1 class="font-display-lg text-display-lg text-on-surface">Bank Details</h1>
+        <p class="font-body-md text-on-surface-variant">
+            {% if search_query %}
+                Found <span class="font-semibold text-primary">{{ filtered_count }}</span> bank record{% if filtered_count != 1 %}s{% endif %} matching "<span class="font-medium text-on-surface">{{ search_query }}</span>" (out of {{ total_count }} total)
+            {% else %}
+                {{ total_count }} total bank records registered
+            {% endif %}
+        </p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="document.getElementById('import-modal').classList.remove('hidden')"
+            class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-4 py-2.5 rounded-xl font-label-md flex items-center gap-2 transition-all duration-300 shadow-sm cursor-pointer text-sm font-medium">
+            <span class="material-symbols-outlined text-[20px]">upload_file</span>
+            Import
+        </button>
+        <!-- Export Dropdown -->
+        <div class="relative inline-block text-left">
+            <button type="button" id="export-btn" onclick="toggleExportMenu(event)"
+                class="bg-white text-on-surface border border-black/10 hover:bg-surface-variant px-4 py-2.5 rounded-xl font-label-md flex items-center gap-2 transition-all duration-300 shadow-sm cursor-pointer text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">download</span>
+                <span>Export</span>
+                <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </button>
+            <div id="export-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-2xl border border-black/10 z-50 py-1 overflow-hidden">
+                <a href="{% url 'bank_details:export' %}?format=csv{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_bank %}&bank_name={{ selected_bank|urlencode }}{% endif %}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium">
+                    <span class="material-symbols-outlined text-[20px] text-emerald-600">csv</span>
+                    <span>Export to CSV</span>
+                </a>
+                <a href="{% url 'bank_details:export' %}?format=excel{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_bank %}&bank_name={{ selected_bank|urlencode }}{% endif %}"
+                   class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-variant transition-all font-medium border-t border-black/5">
+                    <span class="material-symbols-outlined text-[20px] text-electric-violet">table_view</span>
+                    <span>Export to Excel (.xlsx)</span>
+                </a>
+            </div>
+        </div>
+        <a href="{% url 'bank_details:add' %}"
+            class="primary-gradient text-white px-5 py-2.5 rounded-xl font-label-md flex items-center gap-2 transition-all duration-300 shadow-md text-sm font-medium hover:opacity-95">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Add Bank Detail
+        </a>
+    </div>
+</header>
+
+{% if messages %}
+<div class="mb-6 relative z-20 space-y-2">
+    {% for message in messages %}
+    <div class="p-4 rounded-xl text-sm font-medium flex items-center gap-3 border shadow-sm
+        {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200{% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border-rose-200{% else %}bg-amber-50 text-amber-800 border-amber-200{% endif %}">
+        <span class="material-symbols-outlined text-[20px]">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- METRICS CARDS -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm flex items-center justify-between">
+        <div>
+            <p class="text-xs uppercase font-semibold tracking-wider text-on-surface-variant">Total Bank Records</p>
+            <h3 class="text-2xl font-bold text-on-surface mt-1">{{ total_count }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-electric-violet/10 flex items-center justify-center text-electric-violet">
+            <span class="material-symbols-outlined">account_balance</span>
+        </div>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm flex items-center justify-between">
+        <div>
+            <p class="text-xs uppercase font-semibold tracking-wider text-on-surface-variant">Unique Banks</p>
+            <h3 class="text-2xl font-bold text-on-surface mt-1">{{ unique_banks_count }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined">domain</span>
+        </div>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm flex items-center justify-between">
+        <div>
+            <p class="text-xs uppercase font-semibold tracking-wider text-on-surface-variant">IFSC Codes</p>
+            <h3 class="text-2xl font-bold text-on-surface mt-1">{{ ifsc_count }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+            <span class="material-symbols-outlined">qr_code_2</span>
+        </div>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border border-black/5 shadow-sm flex items-center justify-between">
+        <div>
+            <p class="text-xs uppercase font-semibold tracking-wider text-on-surface-variant">MICR Codes</p>
+            <h3 class="text-2xl font-bold text-on-surface mt-1">{{ micr_count }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+            <span class="material-symbols-outlined">pin</span>
+        </div>
+    </div>
+</section>
+
+<!-- CONTROL BAR -->
+<section class="flex flex-wrap items-center gap-4 mb-6 relative z-30">
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'bank_details:list' %}" class="flex-1 min-w-[300px] flex items-center gap-2">
+        {% if selected_bank %}
+        <input type="hidden" name="bank_name" value="{{ selected_bank }}">
+        {% endif %}
+        <div class="relative flex-1">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input
+                name="q"
+                value="{{ search_query|default:'' }}"
+                class="w-full bg-white border border-black/5 focus:border-electric-violet focus:ring-1 focus:ring-electric-violet/30 rounded-xl py-2.5 pl-12 pr-10 text-on-surface placeholder:text-outline shadow-sm transition-all text-sm"
+                placeholder="Search Bank Name, IFSC code, MICR code, branch..." type="text" />
+            {% if search_query %}
+            <a href="{% url 'bank_details:list' %}{% if selected_bank %}?bank_name={{ selected_bank|urlencode }}{% endif %}"
+               title="Clear search"
+               class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-variant transition-all">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </a>
+            {% endif %}
+        </div>
+        <button type="submit"
+            class="primary-gradient text-white px-5 py-2.5 rounded-xl font-label-md flex items-center gap-2 transition-all duration-300 shadow-md hover:opacity-95 cursor-pointer text-sm font-medium">
+            <span class="material-symbols-outlined text-[20px]">search</span>
+            <span>Search</span>
+        </button>
+    </form>
+
+    <!-- Filter Dropdown -->
+    {% if available_bank_names %}
+    <form method="GET" action="{% url 'bank_details:list' %}" class="w-64">
+        {% if search_query %}
+        <input type="hidden" name="q" value="{{ search_query }}">
+        {% endif %}
+        <select name="bank_name" onchange="this.form.submit()" class="w-full bg-white border border-black/10 rounded-xl px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:border-electric-violet shadow-sm">
+            <option value="">All Banks ({{ available_bank_names|length }})</option>
+            {% for bname in available_bank_names %}
+            <option value="{{ bname }}" {% if selected_bank == bname %}selected{% endif %}>{{ bname }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+
+    {% if search_query or selected_bank %}
+    <a href="{% url 'bank_details:list' %}" class="bg-surface-variant text-on-surface px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1 hover:bg-black/10 transition-all">
+        <span class="material-symbols-outlined text-[18px]">refresh</span>
+        Reset Filters
+    </a>
+    {% endif %}
+</section>
+
+<!-- DATA TABLE -->
+<div class="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-black/5 bg-surface-variant/30 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                    <th class="py-4 px-6">Bank Name</th>
+                    <th class="py-4 px-6">IFSC Code</th>
+                    <th class="py-4 px-6">MICR Code</th>
+                    <th class="py-4 px-6">Branch Name</th>
+                    <th class="py-4 px-6">Date Added</th>
+                    <th class="py-4 px-6 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5 text-sm">
+                {% for bank in bank_details %}
+                <tr class="hover:bg-surface-variant/20 transition-colors">
+                    <td class="py-4 px-6 font-semibold text-on-surface">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-electric-violet/10 text-electric-violet flex items-center justify-center font-bold shrink-0">
+                                {{ bank.bank_name|slice:":1"|upper }}
+                            </div>
+                            <span>{{ bank.bank_name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        {% if bank.ifsc_code %}
+                        <div class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 font-mono font-medium text-xs">
+                            <span>{{ bank.ifsc_code }}</span>
+                            <button onclick="copyToClipboard('{{ bank.ifsc_code }}', this)" title="Copy IFSC Code" class="text-slate-400 hover:text-electric-violet transition-colors cursor-pointer ml-1">
+                                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                            </button>
+                        </div>
+                        {% else %}
+                        <span class="text-on-surface-variant/40">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6">
+                        {% if bank.micr_code %}
+                        <div class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-800 font-mono font-medium text-xs">
+                            <span>{{ bank.micr_code }}</span>
+                            <button onclick="copyToClipboard('{{ bank.micr_code }}', this)" title="Copy MICR Code" class="text-slate-400 hover:text-electric-violet transition-colors cursor-pointer ml-1">
+                                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                            </button>
+                        </div>
+                        {% else %}
+                        <span class="text-on-surface-variant/40">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant">
+                        {{ bank.branch_name|default:"—" }}
+                    </td>
+                    <td class="py-4 px-6 text-on-surface-variant text-xs">
+                        {{ bank.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'bank_details:edit' bank.pk %}" title="Edit Bank Detail" class="p-2 text-on-surface-variant hover:text-electric-violet hover:bg-electric-violet/10 rounded-lg transition-all">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </a>
+                            <form method="POST" action="{% url 'bank_details:delete' bank.pk %}" onsubmit="return confirm('Are you sure you want to delete bank record for {{ bank.bank_name|escapejs }} ({{ bank.ifsc_code|escapejs }})?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" title="Delete Bank Detail" class="p-2 text-on-surface-variant hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-12 px-6 text-center text-on-surface-variant">
+                        <div class="flex flex-col items-center gap-3">
+                            <span class="material-symbols-outlined text-4xl text-outline">account_balance</span>
+                            <p class="font-medium text-base text-on-surface">No Bank Records Found</p>
+                            <p class="text-xs max-w-sm">
+                                {% if search_query or selected_bank %}
+                                No bank details matched your search criteria. Try clearing search filters or add a new record.
+                                {% else %}
+                                Get started by adding your first bank details record.
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'bank_details:add' %}" class="mt-2 primary-gradient text-white px-4 py-2 rounded-xl text-xs font-medium shadow-md">
+                                + Add Bank Detail
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div id="import-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-black/5">
+        <div class="flex items-center justify-between">
+            <h3 class="font-display-lg text-lg font-bold text-on-surface">Import Bank Details</h3>
+            <button onclick="document.getElementById('import-modal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <p class="text-xs text-on-surface-variant">
+            Upload a CSV or Excel (.xlsx) file containing bank details. The file should contain column headers: <strong>Bank Name</strong>, <strong>IFSC Code</strong>, <strong>MICR Code</strong>, and optional <strong>Branch Name</strong>.
+        </p>
+        <form method="POST" action="{% url 'bank_details:import' %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <div class="border-2 border-dashed border-black/10 rounded-xl p-6 text-center hover:border-electric-violet transition-colors">
+                <input type="file" name="import_file" accept=".csv, .xlsx, .xls" required class="w-full text-xs text-on-surface cursor-pointer" />
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('import-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-variant transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-gradient text-white px-5 py-2 rounded-xl text-xs font-medium shadow-md">
+                    Start Import
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleExportMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('export-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function() {
+        const menu = document.getElementById('export-menu');
+        if (menu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    function copyToClipboard(text, btnEl) {
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btnEl.querySelector('.material-symbols-outlined');
+            const originalText = icon.textContent;
+            icon.textContent = 'check';
+            icon.classList.add('text-emerald-600');
+            setTimeout(() => {
+                icon.textContent = originalText;
+                icon.classList.remove('text-emerald-600');
+            }, 1500);
+        });
+    }
+</script>
+{% endblock %}

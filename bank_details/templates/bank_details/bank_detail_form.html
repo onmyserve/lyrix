@@ -1,0 +1,100 @@
+{% extends 'base_app.html' %}
+
+{% block title %}{% if is_edit %}Edit Bank Detail{% else %}Add Bank Detail{% endif %} - Lyrix Enterprise CRM{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'bank_details:list' %}" class="p-2 rounded-xl bg-white border border-black/10 hover:bg-surface-variant transition-all text-on-surface-variant flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="font-display-lg text-2xl text-on-surface font-bold">
+                    {% if is_edit %}Edit Bank Detail{% else %}Add Bank Detail{% endif %}
+                </h1>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                    {% if is_edit %}Update banking details for {{ bank.bank_name }} ({{ bank.ifsc_code }}){% else %}Register a new bank master record with Bank Name, IFSC, and MICR codes{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM CARD -->
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- BANK INFORMATION SECTION -->
+        <div class="bg-white rounded-2xl border border-black/5 shadow-sm p-6 space-y-5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-electric-violet flex items-center gap-2 border-b border-black/5 pb-3">
+                <span class="material-symbols-outlined text-[18px]">account_balance</span>
+                <span>Bank Information</span>
+            </h3>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                        Bank Name <span class="text-rose-500">*</span>
+                    </label>
+                    {{ form.bank_name }}
+                    {% if form.bank_name.errors %}
+                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.bank_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                            IFSC Code <span class="text-rose-500">*</span>
+                        </label>
+                        {{ form.ifsc_code }}
+                        {% if form.ifsc_code.errors %}
+                            <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.ifsc_code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                            MICR Code
+                        </label>
+                        {{ form.micr_code }}
+                        {% if form.micr_code.errors %}
+                            <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.micr_code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5">
+                        Branch Name
+                    </label>
+                    {{ form.branch_name }}
+                    {% if form.branch_name.errors %}
+                        <p class="text-xs text-rose-600 mt-1 font-medium">{{ form.branch_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM ACTIONS -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <a href="{% url 'bank_details:list' %}" class="px-5 py-2.5 rounded-xl border border-black/10 text-on-surface font-medium text-sm hover:bg-surface-variant transition-all">
+                Cancel
+            </a>
+            <button type="submit" class="primary-gradient text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-md hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">check</span>
+                <span>{% if is_edit %}Update Bank Detail{% else %}Save Bank Detail{% endif %}</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

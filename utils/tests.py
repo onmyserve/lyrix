@@ -7,13 +7,13 @@ class ReusableSearchTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.c1 = Contact.objects.create(
-            first_name='Alice', last_name='Smith', email='alice@example.com', tag='VIP'
+            name='Alice Smith', email='alice@example.com', state='California'
         )
         self.c2 = Contact.objects.create(
-            first_name='Bob', last_name='Jones', email='bob@test.org', tag='Lead'
+            name='Bob Jones', email='bob@test.org', state='Texas'
         )
         self.c3 = Contact.objects.create(
-            first_name='Charlie', last_name='Smith', email='charlie@enterprise.com', tag='Customer'
+            name='Charlie Smith', email='charlie@enterprise.com', state='New York'
         )
 
     def test_get_search_query_normalizes_input(self):
@@ -25,42 +25,42 @@ class ReusableSearchTestCase(TestCase):
 
     def test_filter_queryset_single_term(self):
         qs = Contact.objects.all()
-        fields = ['first_name', 'last_name', 'email', 'tag']
+        fields = ['name', 'email', 'state']
 
         results = filter_queryset(qs, 'Alice', fields)
         self.assertEqual(list(results), [self.c1])
 
-        results_tag = filter_queryset(qs, 'Lead', fields)
-        self.assertEqual(list(results_tag), [self.c2])
+        results_state = filter_queryset(qs, 'Texas', fields)
+        self.assertEqual(list(results_state), [self.c2])
 
     def test_filter_queryset_case_insensitive(self):
         qs = Contact.objects.all()
-        fields = ['first_name', 'last_name', 'email', 'tag']
+        fields = ['name', 'email', 'state']
 
         results = filter_queryset(qs, 'smith', fields)
         self.assertCountEqual(list(results), [self.c1, self.c3])
 
     def test_filter_queryset_multi_word_search(self):
         qs = Contact.objects.all()
-        fields = ['first_name', 'last_name', 'email', 'tag']
+        fields = ['name', 'email', 'state']
 
         # 'Charlie Smith' should match Charlie Smith
         results = filter_queryset(qs, 'Charlie Smith', fields)
         self.assertEqual(list(results), [self.c3])
 
-        # 'Smith VIP' should match Alice Smith who has tag VIP
-        results_vip = filter_queryset(qs, 'Smith VIP', fields)
-        self.assertEqual(list(results_vip), [self.c1])
+        # 'Smith California' should match Alice Smith in California
+        results_cal = filter_queryset(qs, 'Smith California', fields)
+        self.assertEqual(list(results_cal), [self.c1])
 
     def test_filter_queryset_empty_or_none(self):
         qs = Contact.objects.all()
-        fields = ['first_name', 'last_name']
+        fields = ['name', 'email']
 
         self.assertEqual(filter_queryset(qs, '', fields).count(), 3)
         self.assertEqual(filter_queryset(qs, '   ', fields).count(), 3)
 
     def test_model_searcher_class(self):
-        searcher = ModelSearcher(['first_name', 'last_name', 'email', 'tag'])
+        searcher = ModelSearcher(['name', 'email', 'state'])
         request = self.factory.get('/contacts/?q=bob')
 
         filtered_qs, query_str = searcher.search(request, Contact.objects.all())
@@ -78,57 +78,56 @@ class ReusableImporterTestCase(TestCase):
         self.importer = ModelFileImporter(
             model_class=Contact,
             field_mapping={
-                'first_name': ['first_name', 'first name', 'fname'],
-                'last_name': ['last_name', 'last name', 'lname'],
+                'name': ['name', 'full_name', 'full name', 'first_name', 'last_name'],
                 'email': ['email', 'email address', 'e-mail'],
-                'tag': ['tag', 'tags', 'group'],
+                'state': ['state', 'location', 'region'],
             },
-            required_fields=['first_name', 'email'],
+            required_fields=['name', 'email'],
             unique_key='email',
             update_existing=True,
         )
 
     def test_normalize_header(self):
-        self.assertEqual(normalize_header(' First Name '), 'firstname')
+        self.assertEqual(normalize_header(' Full Name '), 'fullname')
         self.assertEqual(normalize_header('E-Mail_Address'), 'emailaddress')
 
     def test_parse_csv_file(self):
-        csv_data = "First Name,Last Name,Email,Tag\nJohn,Doe,john@example.com,VIP\nJane,Smith,jane@test.org,Customer"
+        csv_data = "Name,Email,State\nJohn Doe,john@example.com,California\nJane Smith,jane@test.org,Texas"
         file_obj = io.BytesIO(csv_data.encode('utf-8'))
         rows = parse_csv_file(file_obj)
         self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[0]['First Name'], 'John')
+        self.assertEqual(rows[0]['Name'], 'John Doe')
         self.assertEqual(rows[1]['Email'], 'jane@test.org')
 
     def test_parse_excel_file(self):
         wb = openpyxl.Workbook()
         ws = wb.active
-        ws.append(['First Name', 'Last Name', 'Email', 'Tag'])
-        ws.append(['Alex', 'Ray', 'alex@excel.com', 'Lead'])
+        ws.append(['Name', 'Email', 'State'])
+        ws.append(['Alex Ray', 'alex@excel.com', 'Florida'])
         output = io.BytesIO()
         wb.save(output)
         output.seek(0)
 
         rows = parse_excel_file(output)
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]['First Name'], 'Alex')
+        self.assertEqual(rows[0]['Name'], 'Alex Ray')
         self.assertEqual(rows[0]['Email'], 'alex@excel.com')
 
     def test_import_rows_create_and_update(self):
         rows = [
-            {'first_name': 'Mark', 'last_name': 'Taylor', 'email': 'mark@test.com', 'tag': 'Lead'},
-            {'first_name': 'Sarah', 'last_name': 'Connor', 'email': 'sarah@test.com', 'tag': 'VIP'},
+            {'name': 'Mark Taylor', 'email': 'mark@test.com', 'state': 'Florida'},
+            {'name': 'Sarah Connor', 'email': 'sarah@test.com', 'state': 'California'},
         ]
         result = self.importer.import_rows(rows)
         self.assertEqual(result.created, 2)
         self.assertEqual(Contact.objects.count(), 2)
 
         rows_update = [
-            {'first_name': 'Mark', 'last_name': 'Taylor Updated', 'email': 'mark@test.com', 'tag': 'Customer'},
+            {'name': 'Mark Taylor Updated', 'email': 'mark@test.com', 'state': 'Texas'},
         ]
         result_update = self.importer.import_rows(rows_update)
         self.assertEqual(result_update.updated, 1)
-        self.assertEqual(Contact.objects.get(email='mark@test.com').last_name, 'Taylor Updated')
+        self.assertEqual(Contact.objects.get(email='mark@test.com').name, 'Mark Taylor Updated')
 
 
 from utils.exporter import ModelFileExporter, export_to_csv_response, export_to_excel_response
@@ -137,11 +136,11 @@ from utils.exporter import ModelFileExporter, export_to_csv_response, export_to_
 class ReusableExporterTestCase(TestCase):
     def setUp(self):
         self.c1 = Contact.objects.create(
-            first_name='Alice', last_name='Smith', email='alice@example.com', tag='VIP'
+            name='Alice Smith', email='alice@example.com', state='California'
         )
         self.exporter = ModelFileExporter(
-            fields=['first_name', 'last_name', 'email', 'tag'],
-            header_labels={'first_name': 'First Name', 'last_name': 'Last Name'},
+            fields=['name', 'email', 'state'],
+            header_labels={'name': 'Name', 'email': 'Email'},
             default_filename='test_export',
         )
 
@@ -151,8 +150,8 @@ class ReusableExporterTestCase(TestCase):
         self.assertEqual(response['Content-Type'], 'text/csv; charset=utf-8')
         self.assertIn('attachment; filename="test_export.csv"', response['Content-Disposition'])
         content = response.content.decode('utf-8')
-        self.assertIn('First Name,Last Name,Email,Tag', content)
-        self.assertIn('Alice,Smith,alice@example.com,VIP', content)
+        self.assertIn('Name,Email,State', content)
+        self.assertIn('Alice Smith,alice@example.com,California', content)
 
     def test_export_excel_response(self):
         response = self.exporter.export_response(Contact.objects.all(), format='excel')
@@ -165,8 +164,8 @@ class ReusableExporterTestCase(TestCase):
         wb = openpyxl.load_workbook(io.BytesIO(response.content))
         ws = wb.active
         rows = list(ws.iter_rows(values_only=True))
-        self.assertEqual(rows[0], ('First Name', 'Last Name', 'Email', 'Tag'))
-        self.assertEqual(rows[1], ('Alice', 'Smith', 'alice@example.com', 'VIP'))
+        self.assertEqual(rows[0], ('Name', 'Email', 'State'))
+        self.assertEqual(rows[1], ('Alice Smith', 'alice@example.com', 'California'))
 
 
 from utils.filters import ModelFilterer, filter_queryset_by_params
@@ -175,20 +174,20 @@ from utils.filters import ModelFilterer, filter_queryset_by_params
 class ReusableFilterTestCase(TestCase):
     def setUp(self):
         self.c1 = Contact.objects.create(
-            first_name='Alice', last_name='Smith', email='alice@example.com', tag='VIP'
+            name='Alice Smith', email='alice@example.com', state='California'
         )
         self.c2 = Contact.objects.create(
-            first_name='Bob', last_name='Jones', email='bob@test.org', tag='Lead'
+            name='Bob Jones', email='bob@test.org', state='Texas'
         )
         self.c3 = Contact.objects.create(
-            first_name='Charlie', last_name='Smith', email='charlie@enterprise.com', tag='Customer'
+            name='Charlie Smith', email='charlie@enterprise.com', state='New York'
         )
 
     def test_filter_exact_fields(self):
         qs = Contact.objects.all()
-        filtered, active = filter_queryset_by_params(qs, {'tag': 'VIP'}, exact_fields=['tag'])
+        filtered, active = filter_queryset_by_params(qs, {'state': 'California'}, exact_fields=['state'])
         self.assertEqual(list(filtered), [self.c1])
-        self.assertEqual(active, {'tag': 'VIP'})
+        self.assertEqual(active, {'state': 'California'})
 
     def test_filter_date_range(self):
         qs = Contact.objects.all()
@@ -197,9 +196,10 @@ class ReusableFilterTestCase(TestCase):
         self.assertEqual(active.get('created_at_range'), 'Today')
 
     def test_model_filterer(self):
-        filterer = ModelFilterer(exact_fields=['tag'], date_fields=['created_at'])
-        tags = filterer.get_distinct_values(Contact.objects.all(), 'tag')
-        self.assertCountEqual(tags, ['Customer', 'Lead', 'VIP'])
+        filterer = ModelFilterer(exact_fields=['state'], date_fields=['created_at'])
+
+        states = filterer.get_distinct_values(Contact.objects.all(), 'state')
+        self.assertCountEqual(states, ['California', 'New York', 'Texas'])
 
 
 
